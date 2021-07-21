@@ -137,8 +137,8 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                 mForeground.addView(view)
             }
         }
-        border = mMarginTop
-        Log.i("SIZE", "$border")
+        border = mForeground.top
+        //Log.i("SIZE", "$border")
     }
 
 

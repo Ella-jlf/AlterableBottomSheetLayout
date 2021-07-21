@@ -14,7 +14,7 @@
         android:layout_height="match_parent"
         android:layout_gravity="center"
         app:allow_limited_area_span="false"
-        app:foreground_height="match_parent"
+        app:foreground_height="300dp"
         app:head_layout="frame_layout"
         app:hide_on_background_click="true"
         app:isHidable="true"
