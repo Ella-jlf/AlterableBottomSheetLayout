@@ -32,6 +32,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
     private var mBackgroundTransparency: Float
     private var mHeadLayout: Int
     private var mScrollableSpan: Float
+    private var mAllowLimitedArea: Boolean
 
     private var mBackground: View
     private var mForeground: ViewGroup
@@ -39,7 +40,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
 
     private var prevTouchY: Float = 0f
     private var velocityTracker: VelocityTracker? = null
-    private var disableScrolling: Boolean = true
+    private var disableScrolling: Boolean = false
     private var hide: Boolean = false
 
     private var travellingView: View? = null
@@ -66,11 +67,14 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                 getColor(
                     R.styleable.AlterableBottomSheetLayout_foreground_color, FOREGROUND
                 )
+            mAllowLimitedArea =
+                getBoolean(R.styleable.AlterableBottomSheetLayout_allow_limited_area_span, false)
+            disableScrolling = mAllowLimitedArea
             mHideOnOutClick =
                 getBoolean(R.styleable.AlterableBottomSheetLayout_hide_on_background_click, true)
             isHidable = getBoolean(R.styleable.AlterableBottomSheetLayout_isHidable, true)
             mScrollableSpan =
-                getDimension(R.styleable.AlterableBottomSheetLayout_scrollable_area_span, 200f)
+                getDimension(R.styleable.AlterableBottomSheetLayout_limited_area_span, 200f)
             mHeadLayout = getInt(R.styleable.AlterableBottomSheetLayout_head_layout, 0)
             mBackgroundTransparency =
                 1f - getFloat(R.styleable.AlterableBottomSheetLayout_transparency_percent, 0f)
@@ -153,7 +157,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
             velocityTracker?.addMovement(event)
             when (event.actionMasked) {
                 MotionEvent.ACTION_MOVE -> {
-                    if (!disableScrolling) {
+                    if (!(mAllowLimitedArea && disableScrolling)) {
                         val dY = event.y - prevTouchY
                         if (dY > 0)
                             mForeground.translationY = dY
@@ -169,8 +173,8 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                     } else {
                         //Log.i("BOTTOMSHEET", "Scroll area")
                         hide = false
-                        if (inMovableArea(event.y)) {
-                            prevTouchY = event.y
+                        prevTouchY = event.y
+                        if (mAllowLimitedArea && inMovableArea(event.y)) {
                             disableScrolling = false
                         }
                     }
@@ -188,7 +192,8 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                         }
                         velocityTracker?.clear()
                     }
-                    disableScrolling = true
+                    if (mAllowLimitedArea)
+                        disableScrolling = true
                 }
             }
         }
@@ -254,9 +259,9 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
         forceLeftGravity: Boolean,
     ) {
         val count = 2
-        val parentLeft: Int = 0
+        val parentLeft = 0
         val parentRight: Int = right - left - 0
-        val parentTop: Int = 0
+        val parentTop = 0
         val parentBottom: Int = bottom - top - 0
         for (i in 0 until count) {
             val child = getChildAt(i)
@@ -277,14 +282,14 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                     Gravity.CENTER_HORIZONTAL -> childLeft =
                         parentLeft + (parentRight - parentLeft - width) / 2 +
                                 lp.leftMargin - lp.rightMargin
-                    Gravity.RIGHT -> {
+                    Gravity.END -> {
                         if (!forceLeftGravity) {
                             childLeft = parentRight - width - lp.rightMargin
                             break
                         }
                         childLeft = parentLeft + lp.leftMargin
                     }
-                    Gravity.LEFT -> childLeft = parentLeft + lp.leftMargin
+                    Gravity.START -> childLeft = parentLeft + lp.leftMargin
                     else -> childLeft = parentLeft + lp.leftMargin
                 }
                 childTop = when (verticalGravity) {

@@ -13,6 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
+        app:allow_limited_area_span="true"
         app:foreground="@drawable/bg_round_corners"
         app:head_layout="frame_layout"
         app:hide_on_background_click="true"
