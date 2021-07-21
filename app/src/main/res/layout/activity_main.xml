@@ -13,17 +13,17 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
-        app:allow_limited_area_span="true"
         app:foreground="@drawable/bg_round_corners"
+        app:foreground_height="wrap_content"
         app:head_layout="frame_layout"
         app:hide_on_background_click="true"
         app:isHidable="true"
-        app:margin_top="64dp"
+        app:margin_top="128dp"
         app:transparency_percent="0.2">
 
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content">
 
             <TextView
                 android:layout_width="wrap_content"

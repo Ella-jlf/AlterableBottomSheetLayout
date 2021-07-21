@@ -2,6 +2,7 @@ package com.insspring.alterablebottomsheet
 
 import android.content.Context
 import android.util.AttributeSet
+import android.util.Log
 import android.view.*
 import android.widget.FrameLayout
 import android.widget.LinearLayout
@@ -13,6 +14,7 @@ import androidx.dynamicanimation.animation.FlingAnimation
 import androidx.dynamicanimation.animation.SpringAnimation
 import androidx.dynamicanimation.animation.SpringForce
 import kotlin.math.abs
+import kotlin.math.max
 
 class AlterableBottomSheetLayout @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0,
@@ -33,6 +35,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
     private var mHeadLayout: Int
     private var mScrollableSpan: Float
     private var mAllowLimitedArea: Boolean
+    private var mForegroundHeight: Int
 
     private var mBackground: View
     private var mForeground: ViewGroup
@@ -42,7 +45,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
     private var velocityTracker: VelocityTracker? = null
     private var disableScrolling: Boolean = false
     private var hide: Boolean = false
-
+    private var border: Int = 0
     private var travellingView: View? = null
 
     init {
@@ -76,6 +79,9 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
             mScrollableSpan =
                 getDimension(R.styleable.AlterableBottomSheetLayout_limited_area_span, 200f)
             mHeadLayout = getInt(R.styleable.AlterableBottomSheetLayout_head_layout, 0)
+            mForegroundHeight =
+                getLayoutDimension(R.styleable.AlterableBottomSheetLayout_foreground_height,
+                    -1)
             mBackgroundTransparency =
                 1f - getFloat(R.styleable.AlterableBottomSheetLayout_transparency_percent, 0f)
             // adding background
@@ -105,7 +111,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                 layoutParams =
                     LayoutParams(
                         LayoutParams.MATCH_PARENT,
-                        LayoutParams.MATCH_PARENT,
+                        mForegroundHeight,
                         Gravity.BOTTOM
                     ).apply {
                         setMargins(0, mMarginTop, 0, 0)
@@ -129,7 +135,10 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                 mForeground.addView(view)
             }
         }
+        border = mForeground.top
+        Log.i("SIZE", "$border")
     }
+
 
     override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
         super.onInterceptTouchEvent(ev)
@@ -165,7 +174,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                     }
                 }
                 MotionEvent.ACTION_DOWN -> {
-                    if (event.y < mMarginTop) {
+                    if (event.y < border) {
                         //Log.i("BOTTOMSHEET", "Out area")
                         hide = true
                         if (isHidable && mHideOnOutClick)
@@ -205,7 +214,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
             friction = 1f
             setStartVelocity(velocity)
             setMinValue(0f)
-            setMaxValue(mForeground.height.toFloat())
+            setMaxValue(mForeground.height + 100f)
             addEndListener { _, _, _, _ ->
                 springAnimation()
             }
@@ -231,8 +240,9 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
     }
 
     private fun springAnimation() {
+        //Log.i("SIZE", "mForeground : ${mForeground.height}")
         //Log.i("POS", "${mForeground.y - mMarginTop} vs ${mForeground.height/2}")
-        if (mForeground.y - mMarginTop <= mForeground.height / 2) {
+        if (mForeground.y - border <= mForeground.height / 2) {
             animateWithSpring(0f)
         } else {
             if (isHidable)
@@ -306,6 +316,6 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
 
     private fun inMovableArea(posY: Float): Boolean {
         // Log.i("POS", "$posY > $mMarginTop and $posY < ${mMarginTop + 150f}")
-        return posY > mMarginTop && posY < mMarginTop + mScrollableSpan
+        return posY > border && posY < border + mScrollableSpan
     }
 }
