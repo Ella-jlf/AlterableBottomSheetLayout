@@ -13,31 +13,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
-        app:foreground="@drawable/bg_round_corners"
-        app:foreground_height="wrap_content"
+        app:foreground_height="match_parent"
         app:head_layout="frame_layout"
         app:hide_on_background_click="true"
         app:isHidable="true"
         app:margin_top="128dp"
         app:transparency_percent="0.2">
 
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="top|center"
-                android:text="SOMETEXT"
-                android:textSize="32sp" />
-
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="CLICKME" />
-        </FrameLayout>
 
     </com.insspring.alterablebottomsheet.AlterableBottomSheetLayout>
 

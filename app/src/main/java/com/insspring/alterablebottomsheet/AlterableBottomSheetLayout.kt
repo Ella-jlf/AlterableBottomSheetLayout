@@ -59,7 +59,8 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
         ).apply {
             // getting all attrs
             mForegroundBackground =
-                getResourceIdOrThrow(R.styleable.AlterableBottomSheetLayout_foreground)
+                getResourceId(R.styleable.AlterableBottomSheetLayout_foreground,
+                    R.drawable.bg_round_corners)
             mMarginTop =
                 getDimensionPixelSize(R.styleable.AlterableBottomSheetLayout_margin_top, 0)
             mBackgroundColor =
