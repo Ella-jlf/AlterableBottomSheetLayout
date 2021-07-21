@@ -9,6 +9,7 @@ import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import androidx.core.content.res.getResourceIdOrThrow
 import androidx.core.view.isVisible
+import androidx.core.view.marginTop
 import androidx.dynamicanimation.animation.DynamicAnimation
 import androidx.dynamicanimation.animation.FlingAnimation
 import androidx.dynamicanimation.animation.SpringAnimation
@@ -136,24 +137,37 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                 mForeground.addView(view)
             }
         }
-        border = mForeground.top
+        border = mMarginTop
         Log.i("SIZE", "$border")
     }
 
 
     override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
-        super.onInterceptTouchEvent(ev)
         if (ev != null) {
             return when (ev.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
                     velocityTracker?.recycle()
                     velocityTracker = VelocityTracker.obtain()
                     velocityTracker?.addMovement(ev)
-                    false
+                    if (ev.y < border) {
+                        //Log.i("BOTTOMSHEET", "Out area")
+                        hide = true
+                        true
+                    } else {
+                        //Log.i("BOTTOMSHEET", "Scroll area")
+                        hide = false
+                        prevTouchY = ev.y
+                        if (mAllowLimitedArea && inMovableArea(ev.y)) {
+                            disableScrolling = false
+                            true
+                        } else
+                            false
+                    }
                 }
                 MotionEvent.ACTION_MOVE -> {
-                    //velocityTracker?.addMovement(ev)
-                    abs(ev.y - prevTouchY) > touchSlop
+                    velocityTracker?.addMovement(ev)
+                    //abs(ev.y - prevTouchY) > touchSlop
+                    false
                 }
                 else ->
                     false
@@ -175,19 +189,8 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                     }
                 }
                 MotionEvent.ACTION_DOWN -> {
-                    if (event.y < border) {
-                        //Log.i("BOTTOMSHEET", "Out area")
-                        hide = true
-                        if (isHidable && mHideOnOutClick)
-                            hide()
-                    } else {
-                        //Log.i("BOTTOMSHEET", "Scroll area")
-                        hide = false
-                        prevTouchY = event.y
-                        if (mAllowLimitedArea && inMovableArea(event.y)) {
-                            disableScrolling = false
-                        }
-                    }
+                    if (isHidable && mHideOnOutClick && hide)
+                        hide()
                 }
                 MotionEvent.ACTION_UP,
                 MotionEvent.ACTION_CANCEL,
