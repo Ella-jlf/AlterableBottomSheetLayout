@@ -13,11 +13,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
+        app:foreground="@drawable/bg_empty"
         app:foreground_height="wrap_content"
-        app:head_layout="frame_layout"
-        app:hide_on_background_click="true"
-        app:isDraggable="false"
-        app:isHidable="true"
+        app:head_layout="linear_layout"
+        app:hide_on_background_click="false"
         app:margin_top="128dp"
         app:transparency_percent="0.2">
 
@@ -76,9 +75,18 @@
                             android:textStyle="bold" />
                     </com.google.android.material.bottomappbar.BottomAppBar>
                 </androidx.coordinatorlayout.widget.CoordinatorLayout>-->
+        <ImageView
+            android:layout_width="128dp"
+            android:layout_height="4dp"
+            android:layout_gravity="center|top"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/bg_round_corners" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/bg_round_corners"
             android:orientation="vertical">
 
             <TextView

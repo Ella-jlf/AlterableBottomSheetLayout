@@ -83,31 +83,47 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
             }
             addView(mBackground, 0)
             when (mHeadLayout) {
-                0 -> {
-                    mForeground = FrameLayout(context)
-                }
                 1 -> {
                     mForeground = LinearLayout(context).apply {
                         orientation = LinearLayout.VERTICAL
+                        gravity = Gravity.CENTER
+                        setBackgroundResource(mForegroundBackground)
+                        layoutParams =
+                            LayoutParams(
+                                LayoutParams.MATCH_PARENT,
+                                mForegroundHeight,
+                                Gravity.BOTTOM
+                            ).apply {
+                                setMargins(0, mMarginTop, 0, 0)
+                            }
                     }
                 }
                 2 -> {
-                    mForeground = RelativeLayout(context)
+                    mForeground = RelativeLayout(context).apply {
+                        setBackgroundResource(mForegroundBackground)
+                        layoutParams =
+                            LayoutParams(
+                                LayoutParams.MATCH_PARENT,
+                                mForegroundHeight,
+                                Gravity.BOTTOM
+                            ).apply {
+                                setMargins(0, mMarginTop, 0, 0)
+                            }
+                    }
                 }
                 else -> {
-                    mForeground = FrameLayout(context)
-                }
-            }
-            mForeground.apply {
-                setBackgroundResource(mForegroundBackground)
-                layoutParams =
-                    LayoutParams(
-                        LayoutParams.MATCH_PARENT,
-                        mForegroundHeight,
-                        Gravity.BOTTOM
-                    ).apply {
-                        setMargins(0, mMarginTop, 0, 0)
+                    mForeground = FrameLayout(context).apply {
+                        setBackgroundResource(mForegroundBackground)
+                        layoutParams =
+                            LayoutParams(
+                                LayoutParams.MATCH_PARENT,
+                                mForegroundHeight,
+                                Gravity.BOTTOM
+                            ).apply {
+                                setMargins(0, mMarginTop, 0, 0)
+                            }
                     }
+                }
             }
             addView(mForeground, 1)
         }
