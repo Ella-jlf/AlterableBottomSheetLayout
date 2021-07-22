@@ -1,21 +1,18 @@
 package com.insspring.alterablebottomsheet
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
 import android.view.*
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
-import androidx.core.content.res.getResourceIdOrThrow
 import androidx.core.view.isVisible
-import androidx.core.view.marginTop
 import androidx.dynamicanimation.animation.DynamicAnimation
 import androidx.dynamicanimation.animation.FlingAnimation
 import androidx.dynamicanimation.animation.SpringAnimation
 import androidx.dynamicanimation.animation.SpringForce
 import kotlin.math.abs
-import kotlin.math.max
 
 class AlterableBottomSheetLayout @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0,
@@ -26,7 +23,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
     @Suppress("PrivatePropertyName")
     private val FOREGROUND = 0xFFFFFFFF.toInt()
 
-    private var isHidable: Boolean
+    private var mIsHidable: Boolean
     private var mForegroundBackground: Int
     private var mMarginTop: Int
     private var mBackgroundColor: Int
@@ -34,24 +31,21 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
     private var mHideOnOutClick: Boolean
     private var mBackgroundTransparency: Float
     private var mHeadLayout: Int
-    private var mScrollableSpan: Float
-    private var mAllowLimitedArea: Boolean
     private var mForegroundHeight: Int
-
+    private var mIsDraggable: Boolean
     private var mBackground: View
     private var mForeground: ViewGroup
-    private val touchSlop: Int
+    private val mTouchSlop: Int
 
     private var prevTouchY: Float = 0f
     private var velocityTracker: VelocityTracker? = null
-    private var disableScrolling: Boolean = false
     private var hide: Boolean = false
     private var border: Int = 0
     private var travellingView: View? = null
 
     init {
         this.translationZ = 10f
-        touchSlop = ViewConfiguration.get(context).scaledTouchSlop
+        mTouchSlop = ViewConfiguration.get(context).scaledTouchSlop
         val typedArray = context.theme.obtainStyledAttributes(
             attrs,
             R.styleable.AlterableBottomSheetLayout,
@@ -72,14 +66,10 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                 getColor(
                     R.styleable.AlterableBottomSheetLayout_foreground_color, FOREGROUND
                 )
-            mAllowLimitedArea =
-                getBoolean(R.styleable.AlterableBottomSheetLayout_allow_limited_area_span, false)
-            disableScrolling = mAllowLimitedArea
+            mIsDraggable = getBoolean(R.styleable.AlterableBottomSheetLayout_isDraggable, true)
             mHideOnOutClick =
                 getBoolean(R.styleable.AlterableBottomSheetLayout_hide_on_background_click, true)
-            isHidable = getBoolean(R.styleable.AlterableBottomSheetLayout_isHidable, true)
-            mScrollableSpan =
-                getDimension(R.styleable.AlterableBottomSheetLayout_limited_area_span, 200f)
+            mIsHidable = getBoolean(R.styleable.AlterableBottomSheetLayout_isHidable, true)
             mHeadLayout = getInt(R.styleable.AlterableBottomSheetLayout_head_layout, 0)
             mForegroundHeight =
                 getLayoutDimension(R.styleable.AlterableBottomSheetLayout_foreground_height,
@@ -124,10 +114,6 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
         typedArray.recycle()
     }
 
-    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-    }
-
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
         layoutChildren(l, t, r, b, false)
         for (i in 2 until childCount) {
@@ -157,11 +143,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                         //Log.i("BOTTOMSHEET", "Scroll area")
                         hide = false
                         prevTouchY = ev.y
-                        if (mAllowLimitedArea && inMovableArea(ev.y)) {
-                            disableScrolling = false
-                            true
-                        } else
-                            false
+                        false
                     }
                 }
                 MotionEvent.ACTION_MOVE -> {
@@ -176,12 +158,13 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
         return false
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         if (event != null) {
             velocityTracker?.addMovement(event)
             when (event.actionMasked) {
                 MotionEvent.ACTION_MOVE -> {
-                    if (!(mAllowLimitedArea && disableScrolling)) {
+                    if (mIsDraggable) {
                         val dY = event.y - prevTouchY
                         if (dY > 0)
                             mForeground.translationY = dY
@@ -189,13 +172,13 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                     }
                 }
                 MotionEvent.ACTION_DOWN -> {
-                    if (isHidable && mHideOnOutClick && hide)
+                    if (mIsHidable && mHideOnOutClick && hide)
                         hide()
                 }
                 MotionEvent.ACTION_UP,
                 MotionEvent.ACTION_CANCEL,
                 -> {
-                    if (!hide && !disableScrolling) {
+                    if (!hide && mIsDraggable) {
                         velocityTracker?.computeCurrentVelocity(1000)
                         val velocity = velocityTracker?.yVelocity ?: 0f
                         if (abs(velocity) > 1000) {
@@ -205,8 +188,6 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                         }
                         velocityTracker?.clear()
                     }
-                    if (mAllowLimitedArea)
-                        disableScrolling = true
                 }
             }
         }
@@ -249,7 +230,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
         if (mForeground.y - border <= mForeground.height / 2) {
             animateWithSpring(0f)
         } else {
-            if (isHidable)
+            if (mIsHidable)
                 animateWithSpring(mForeground.height.toFloat())
             else
                 animateWithSpring(0f)
@@ -316,10 +297,5 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                 child.layout(childLeft, childTop, childLeft + width, childTop + height)
             }
         }
-    }
-
-    private fun inMovableArea(posY: Float): Boolean {
-        // Log.i("POS", "$posY > $mMarginTop and $posY < ${mMarginTop + 150f}")
-        return posY > border && posY < border + mScrollableSpan
     }
 }
