@@ -19,14 +19,17 @@ class MainActivity : AppCompatActivity() {
         setContentView(view)
         view.vBtnShow.setOnClickListener {
             view.vBS.show()
-            Log.i("CLICK", "CLICKED")
+            //Log.i("CLICK", "CLICKED")
         }
-        view.vBtnFilterClearChosen.setOnClickListener {
+/*        view.vBtnFilterClearChosen.setOnClickListener {
             Log.i("CLICK", "CLEAR")
-        }
+        }*/
         view.vRvBottomSheetFilter.adapter = QuickAdapter()
         (view.vRvBottomSheetFilter.layoutManager as LinearLayoutManager).orientation =
             LinearLayoutManager.VERTICAL
+/*        view.vBtnCLickMe.setOnClickListener {
+            Log.i("CLICK", "Inner Button")
+        }*/
     }
 }
 

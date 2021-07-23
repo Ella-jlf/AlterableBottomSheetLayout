@@ -11,9 +11,8 @@
         </attr>
         <attr name="transparency_percent" format="float" />
         <attr name="margin_top" format="dimension" />
-        <attr name="limited_area_span" format="dimension" />
+        <attr name="isDraggable" format="boolean" />
         <attr name="hide_on_background_click" format="boolean" />
-        <attr name="allow_limited_area_span" format="boolean" />
         <attr name="background_color" format="color" />
         <attr name="foreground_height" format="dimension">
             <enum name="match_parent" value="-1" />

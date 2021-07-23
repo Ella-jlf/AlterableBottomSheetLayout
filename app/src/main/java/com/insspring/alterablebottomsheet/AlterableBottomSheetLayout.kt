@@ -1,21 +1,25 @@
 package com.insspring.alterablebottomsheet
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.text.Layout
 import android.util.AttributeSet
 import android.util.Log
 import android.view.*
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
-import androidx.core.content.res.getResourceIdOrThrow
+import android.widget.ScrollView
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.view.ScrollingView
 import androidx.core.view.isVisible
-import androidx.core.view.marginTop
+import androidx.core.widget.NestedScrollView
 import androidx.dynamicanimation.animation.DynamicAnimation
 import androidx.dynamicanimation.animation.FlingAnimation
 import androidx.dynamicanimation.animation.SpringAnimation
 import androidx.dynamicanimation.animation.SpringForce
+import androidx.recyclerview.widget.RecyclerView
 import kotlin.math.abs
-import kotlin.math.max
 
 class AlterableBottomSheetLayout @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0,
@@ -26,7 +30,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
     @Suppress("PrivatePropertyName")
     private val FOREGROUND = 0xFFFFFFFF.toInt()
 
-    private var isHidable: Boolean
+    private var mIsHidable: Boolean
     private var mForegroundBackground: Int
     private var mMarginTop: Int
     private var mBackgroundColor: Int
@@ -34,24 +38,21 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
     private var mHideOnOutClick: Boolean
     private var mBackgroundTransparency: Float
     private var mHeadLayout: Int
-    private var mScrollableSpan: Float
-    private var mAllowLimitedArea: Boolean
     private var mForegroundHeight: Int
-
+    private var mIsDraggable: Boolean
     private var mBackground: View
     private var mForeground: ViewGroup
-    private val touchSlop: Int
+    private val mTouchSlop: Int
 
     private var prevTouchY: Float = 0f
     private var velocityTracker: VelocityTracker? = null
-    private var disableScrolling: Boolean = false
     private var hide: Boolean = false
     private var border: Int = 0
     private var travellingView: View? = null
 
     init {
         this.translationZ = 10f
-        touchSlop = ViewConfiguration.get(context).scaledTouchSlop
+        mTouchSlop = ViewConfiguration.get(context).scaledTouchSlop
         val typedArray = context.theme.obtainStyledAttributes(
             attrs,
             R.styleable.AlterableBottomSheetLayout,
@@ -72,14 +73,10 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                 getColor(
                     R.styleable.AlterableBottomSheetLayout_foreground_color, FOREGROUND
                 )
-            mAllowLimitedArea =
-                getBoolean(R.styleable.AlterableBottomSheetLayout_allow_limited_area_span, false)
-            disableScrolling = mAllowLimitedArea
+            mIsDraggable = getBoolean(R.styleable.AlterableBottomSheetLayout_isDraggable, true)
             mHideOnOutClick =
                 getBoolean(R.styleable.AlterableBottomSheetLayout_hide_on_background_click, true)
-            isHidable = getBoolean(R.styleable.AlterableBottomSheetLayout_isHidable, true)
-            mScrollableSpan =
-                getDimension(R.styleable.AlterableBottomSheetLayout_limited_area_span, 200f)
+            mIsHidable = getBoolean(R.styleable.AlterableBottomSheetLayout_isHidable, true)
             mHeadLayout = getInt(R.styleable.AlterableBottomSheetLayout_head_layout, 0)
             mForegroundHeight =
                 getLayoutDimension(R.styleable.AlterableBottomSheetLayout_foreground_height,
@@ -93,39 +90,51 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
             }
             addView(mBackground, 0)
             when (mHeadLayout) {
-                0 -> {
-                    mForeground = FrameLayout(context)
-                }
                 1 -> {
                     mForeground = LinearLayout(context).apply {
                         orientation = LinearLayout.VERTICAL
+                        gravity = Gravity.CENTER
+                        setBackgroundResource(mForegroundBackground)
+                        layoutParams =
+                            LayoutParams(
+                                LayoutParams.MATCH_PARENT,
+                                mForegroundHeight,
+                                Gravity.BOTTOM
+                            ).apply {
+                                setMargins(0, mMarginTop, 0, 0)
+                            }
                     }
                 }
                 2 -> {
-                    mForeground = RelativeLayout(context)
+                    mForeground = RelativeLayout(context).apply {
+                        setBackgroundResource(mForegroundBackground)
+                        layoutParams =
+                            LayoutParams(
+                                LayoutParams.MATCH_PARENT,
+                                mForegroundHeight,
+                                Gravity.BOTTOM
+                            ).apply {
+                                setMargins(0, mMarginTop, 0, 0)
+                            }
+                    }
                 }
                 else -> {
-                    mForeground = FrameLayout(context)
-                }
-            }
-            mForeground.apply {
-                setBackgroundResource(mForegroundBackground)
-                layoutParams =
-                    LayoutParams(
-                        LayoutParams.MATCH_PARENT,
-                        mForegroundHeight,
-                        Gravity.BOTTOM
-                    ).apply {
-                        setMargins(0, mMarginTop, 0, 0)
+                    mForeground = FrameLayout(context).apply {
+                        setBackgroundResource(mForegroundBackground)
+                        layoutParams =
+                            LayoutParams(
+                                LayoutParams.MATCH_PARENT,
+                                mForegroundHeight,
+                                Gravity.BOTTOM
+                            ).apply {
+                                setMargins(0, mMarginTop, 0, 0)
+                            }
                     }
+                }
             }
             addView(mForeground, 1)
         }
         typedArray.recycle()
-    }
-
-    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
@@ -157,17 +166,16 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                         //Log.i("BOTTOMSHEET", "Scroll area")
                         hide = false
                         prevTouchY = ev.y
-                        if (mAllowLimitedArea && inMovableArea(ev.y)) {
-                            disableScrolling = false
-                            true
-                        } else
-                            false
+                        false
                     }
                 }
                 MotionEvent.ACTION_MOVE -> {
                     velocityTracker?.addMovement(ev)
                     //abs(ev.y - prevTouchY) > touchSlop
-                    false
+                    if (abs(ev.y - prevTouchY) > mTouchSlop && ev.y > prevTouchY) {
+                        !isChildScrolling(ev.rawX, ev.rawY, this)
+                    } else
+                        false
                 }
                 else ->
                     false
@@ -176,12 +184,13 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
         return false
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         if (event != null) {
             velocityTracker?.addMovement(event)
             when (event.actionMasked) {
                 MotionEvent.ACTION_MOVE -> {
-                    if (!(mAllowLimitedArea && disableScrolling)) {
+                    if (mIsDraggable) {
                         val dY = event.y - prevTouchY
                         if (dY > 0)
                             mForeground.translationY = dY
@@ -189,13 +198,13 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                     }
                 }
                 MotionEvent.ACTION_DOWN -> {
-                    if (isHidable && mHideOnOutClick && hide)
+                    if (mIsHidable && mHideOnOutClick && hide)
                         hide()
                 }
                 MotionEvent.ACTION_UP,
                 MotionEvent.ACTION_CANCEL,
                 -> {
-                    if (!hide && !disableScrolling) {
+                    if (!hide && mIsDraggable) {
                         velocityTracker?.computeCurrentVelocity(1000)
                         val velocity = velocityTracker?.yVelocity ?: 0f
                         if (abs(velocity) > 1000) {
@@ -205,8 +214,6 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                         }
                         velocityTracker?.clear()
                     }
-                    if (mAllowLimitedArea)
-                        disableScrolling = true
                 }
             }
         }
@@ -249,7 +256,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
         if (mForeground.y - border <= mForeground.height / 2) {
             animateWithSpring(0f)
         } else {
-            if (isHidable)
+            if (mIsHidable)
                 animateWithSpring(mForeground.height.toFloat())
             else
                 animateWithSpring(0f)
@@ -318,8 +325,39 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
         }
     }
 
-    private fun inMovableArea(posY: Float): Boolean {
-        // Log.i("POS", "$posY > $mMarginTop and $posY < ${mMarginTop + 150f}")
-        return posY > border && posY < border + mScrollableSpan
+    private fun isChildScrolling(eventX: Float, eventY: Float, viewGroup: ViewGroup): Boolean {
+        var view: View
+        /*Log.i("SCROLL", "called viewgroup with childCount:${viewGroup.childCount}")*/
+        for (i in 0 until viewGroup.childCount) {
+            view = viewGroup.getChildAt(i)
+/*            Log.i("SCROLL", "Got child at $i")*/
+            if (isViewAtLocation(eventX, eventY, view)) {
+/*                if (view is ScrollView || view is ScrollingView || view is NestedScrollView
+*//*                    || view is NestedScrollingChild || view is NestedScrollingChild2
+                    || view is NestedScrollingChild3 || view is NestedScrollingParent
+                    || view is NestedScrollingParent2 || view is NestedScrollingParent3*//*
+                )*/
+                if (view.canScrollVertically(-1))
+                    return true
+                /*Log.i("SCROLL", "${view.tag} child $i is ViewGroup : ${view is ViewGroup}")*/
+                if (view is ViewGroup) {
+                    /*Log.i("SCROLL", "calling isChildScrolling")*/
+                    if (isChildScrolling(eventX - view.left, eventY - view.top, view))
+                        return true
+                }
+            }
+        }
+        return false
+    }
+
+    private fun isViewAtLocation(rawX: Float, rawY: Float, view: View): Boolean {
+        if (view.left <= rawX && view.right >= rawX) {
+            if (view.top <= rawY && view.bottom >= rawY) {
+                return true
+            }
+        }
+        /*Log.i("SCROLL",
+            "x:$rawX y:$rawY \n left:${view.left} right:${view.right} top:${view.top} bottom:${view.bottom} , under finger : $a")*/
+        return false
     }
 }

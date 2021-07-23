@@ -13,19 +13,16 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
-        app:allow_limited_area_span="false"
-        app:foreground_height="300dp"
-        app:head_layout="frame_layout"
-        app:hide_on_background_click="true"
-        app:isHidable="true"
+        app:foreground_height="wrap_content"
         app:margin_top="128dp"
         app:transparency_percent="0.2">
 
-        <androidx.coordinatorlayout.widget.CoordinatorLayout
+        <FrameLayout
             android:id="@+id/vgBottomSheetFilters"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="128dp">
+            android:layout_marginTop="128dp"
+            android:tag="I AM PARENT OF RECYCLER VIEW">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/vRvBottomSheetFilter"
@@ -34,48 +31,60 @@
                 android:layout_gravity="fill"
                 android:layout_marginBottom="60dp"
                 android:orientation="vertical"
+                android:tag="I AM RECYCLER VIEW"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
-            <com.google.android.material.bottomappbar.BottomAppBar
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_gravity="bottom">
+        </FrameLayout>
+        <!-- <ImageView
+             android:layout_width="128dp"
+             android:layout_height="4dp"
+             android:layout_gravity="center|top"
+             android:layout_marginTop="24dp"
+             android:background="@drawable/bg_round_corners" />
 
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center|start"
-                    android:layout_marginStart="16dp">
+         <LinearLayout
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:layout_marginTop="4dp"
+             android:background="@drawable/bg_round_corners"
+             android:orientation="vertical">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Выбрано"
-                        android:textColor="@color/black"
-                        android:textSize="14sp" />
+             <TextView
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:layout_gravity="center"
+                 android:text="SOMETEXT"
+                 android:textSize="32sp" />
 
-                    <TextView
-                        android:id="@+id/vTvFilterCount"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="2dp"
-                        android:text="0"
-                        android:textColor="@color/black"
-                        android:textSize="14sp" />
-                </LinearLayout>
+             <TextView
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:layout_gravity="center"
+                 android:text="SOMETEXT"
+                 android:textSize="32sp" />
 
-                <TextView
-                    android:id="@+id/vBtnFilterClearChosen"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center|end"
-                    android:layout_marginEnd="16dp"
-                    android:text="Очистить"
-                    android:textColor="#390983"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-            </com.google.android.material.bottomappbar.BottomAppBar>
-        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+             <TextView
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:layout_gravity="center"
+                 android:text="SOMETEXT"
+                 android:textSize="32sp" />
+
+             <Button
+                 android:id="@+id/vBtnCLickMe"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:layout_gravity="center"
+                 android:text="CLickMe"
+                 android:textSize="28sp" />
+
+             <TextView
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:layout_gravity="center"
+                 android:text="SOMETEXT"
+                 android:textSize="32sp" />
+         </LinearLayout>-->
 
     </com.insspring.alterablebottomsheet.AlterableBottomSheetLayout>
 
