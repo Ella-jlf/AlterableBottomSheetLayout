@@ -21,16 +21,15 @@ class MainActivity : AppCompatActivity() {
             view.vBS.show()
             //Log.i("CLICK", "CLICKED")
         }
-        /*  view.vBtnFilterClearChosen.setOnClickListener {
-              Log.i("CLICK", "CLEAR")
-          }
-          view.vRvBottomSheetFilter.adapter = QuickAdapter()
-          (view.vRvBottomSheetFilter.layoutManager as LinearLayoutManager).orientation =
-              LinearLayoutManager.VERTICAL
-      }*/
-        view.vBtnCLickMe.setOnClickListener {
+/*        view.vBtnFilterClearChosen.setOnClickListener {
+            Log.i("CLICK", "CLEAR")
+        }*/
+        view.vRvBottomSheetFilter.adapter = QuickAdapter()
+        (view.vRvBottomSheetFilter.layoutManager as LinearLayoutManager).orientation =
+            LinearLayoutManager.VERTICAL
+/*        view.vBtnCLickMe.setOnClickListener {
             Log.i("CLICK", "Inner Button")
-        }
+        }*/
     }
 }
 

@@ -2,16 +2,23 @@ package com.insspring.alterablebottomsheet
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.text.Layout
 import android.util.AttributeSet
+import android.util.Log
 import android.view.*
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
+import android.widget.ScrollView
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.view.ScrollingView
 import androidx.core.view.isVisible
+import androidx.core.widget.NestedScrollView
 import androidx.dynamicanimation.animation.DynamicAnimation
 import androidx.dynamicanimation.animation.FlingAnimation
 import androidx.dynamicanimation.animation.SpringAnimation
 import androidx.dynamicanimation.animation.SpringForce
+import androidx.recyclerview.widget.RecyclerView
 import kotlin.math.abs
 
 class AlterableBottomSheetLayout @JvmOverloads constructor(
@@ -165,7 +172,10 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                 MotionEvent.ACTION_MOVE -> {
                     velocityTracker?.addMovement(ev)
                     //abs(ev.y - prevTouchY) > touchSlop
-                    false
+                    if (abs(ev.y - prevTouchY) > mTouchSlop && ev.y > prevTouchY) {
+                        !isChildScrolling(ev.rawX, ev.rawY, this)
+                    } else
+                        false
                 }
                 else ->
                     false
@@ -313,5 +323,41 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                 child.layout(childLeft, childTop, childLeft + width, childTop + height)
             }
         }
+    }
+
+    private fun isChildScrolling(eventX: Float, eventY: Float, viewGroup: ViewGroup): Boolean {
+        var view: View
+        /*Log.i("SCROLL", "called viewgroup with childCount:${viewGroup.childCount}")*/
+        for (i in 0 until viewGroup.childCount) {
+            view = viewGroup.getChildAt(i)
+/*            Log.i("SCROLL", "Got child at $i")*/
+            if (isViewAtLocation(eventX, eventY, view)) {
+/*                if (view is ScrollView || view is ScrollingView || view is NestedScrollView
+*//*                    || view is NestedScrollingChild || view is NestedScrollingChild2
+                    || view is NestedScrollingChild3 || view is NestedScrollingParent
+                    || view is NestedScrollingParent2 || view is NestedScrollingParent3*//*
+                )*/
+                if (view.canScrollVertically(-1))
+                    return true
+                /*Log.i("SCROLL", "${view.tag} child $i is ViewGroup : ${view is ViewGroup}")*/
+                if (view is ViewGroup) {
+                    /*Log.i("SCROLL", "calling isChildScrolling")*/
+                    if (isChildScrolling(eventX - view.left, eventY - view.top, view))
+                        return true
+                }
+            }
+        }
+        return false
+    }
+
+    private fun isViewAtLocation(rawX: Float, rawY: Float, view: View): Boolean {
+        if (view.left <= rawX && view.right >= rawX) {
+            if (view.top <= rawY && view.bottom >= rawY) {
+                return true
+            }
+        }
+        /*Log.i("SCROLL",
+            "x:$rawX y:$rawY \n left:${view.left} right:${view.right} top:${view.top} bottom:${view.bottom} , under finger : $a")*/
+        return false
     }
 }
