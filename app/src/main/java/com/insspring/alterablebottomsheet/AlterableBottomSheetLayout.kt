@@ -90,6 +90,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                 setBackgroundColor(mBackgroundColor)
             }
             addView(mBackground, 0)
+            //creating certain type of layout
             when (mHeadLayout) {
                 1 -> {
                     mForeground = LinearLayout(context).apply {
@@ -138,6 +139,8 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
         typedArray.recycle()
     }
 
+    // for the first two children(background and foreground) the same as for frameLayout
+    //others are tossing over to foreground, and foreground is responsible for there measure and layout
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
         layoutChildren(l, t, r, b, false)
         for (i in 2 until childCount) {
@@ -151,6 +154,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
         //Log.i("SIZE", "$border")
     }
 
+    //intercepted only background click, and move if nobody of children can process
     override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
         if (ev != null) {
             return when (ev.actionMasked) {
@@ -170,8 +174,8 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                 }
                 MotionEvent.ACTION_MOVE -> {
                     velocityTracker?.addMovement(ev)
-                    //abs(ev.y - prevTouchY) > touchSlop
                     if (abs(ev.y - prevTouchY) > mTouchSlop) {
+                        //let children intercept it
                         !isChildScrolling(ev.rawX,
                             ev.rawY,
                             this,
@@ -186,6 +190,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
         return false
     }
 
+    // direction -1 - up, 1 - down
     private fun getDirection(cur: Float, prev: Float): Int {
         return if (cur > prev)
             -1
@@ -200,13 +205,16 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
             when (event.actionMasked) {
                 MotionEvent.ACTION_MOVE -> {
                     if (mIsDraggable) {
+                        // drag view with finger
                         val dY = event.y - prevTouchY
                         when (mType) {
                             0, 2 -> {
+                                // conditions not to get out of the acceptable bounds
                                 if (dY + curTranslation >= 0 && dY + curTranslation <= mForeground.height)
                                     mForeground.translationY = dY + curTranslation
                             }
                             1 -> {
+                                // conditions not to get out of the acceptable bounds
                                 if (dY + curTranslation >= 0 && dY + curTranslation <= mForeground.height - mIntermediateHeight)
                                     mForeground.translationY = dY + curTranslation
                             }
@@ -215,6 +223,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                     }
                 }
                 MotionEvent.ACTION_DOWN -> {
+                    // that event come only if background was pressed
                     if (hide && mHideOnOutClick && mIsHidable && mType != 1)
                         hide()
                 }
@@ -224,6 +233,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                     if (!hide && mIsDraggable) {
                         velocityTracker?.computeCurrentVelocity(1000)
                         val velocity = velocityTracker?.yVelocity ?: 0f
+                        //check if we fling view, it has to fly based on it's velocity
                         if (abs(velocity) > 1000) {
                             when (mType) {
                                 0 -> finalAnimationWithFling0(velocity)
@@ -245,6 +255,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
         return true
     }
 
+    //velocity based animations
     private fun finalAnimationWithFling0(velocity: Float) {
         animateWithFling(velocity, 0f, mForeground.height.toFloat())
     }
@@ -283,6 +294,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                     stiffness = SpringForce.STIFFNESS_MEDIUM
                 }
                 addEndListener { _, _, _, _ ->
+                    // if was fully scrolled to bottom of screen - disappear
                     if (finalPos == mForeground.height.toFloat()) {
                         this@AlterableBottomSheetLayout.isVisible = false
                     }
@@ -291,9 +303,8 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
         springAnimation.start()
     }
 
+    //final animations to place view in exact spot
     private fun finalAnimationWithSpring0() {
-        //Log.i("SIZE", "mForeground : ${mForeground.height}")
-        //Log.i("POS", "${mForeground.y - mMarginTop} vs ${mForeground.height/2}")
         if (mForeground.y <= mForeground.height / 2 + border) {
             animateWithSpring(0f)
         } else {
@@ -338,6 +349,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
         animateWithSpring(mForeground.height.toFloat())
     }
 
+    // like frameLayout.onLayout, but for only 2 views
     private fun layoutChildren(
         left: Int,
         top: Int,
@@ -391,6 +403,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
         }
     }
 
+    // recursive!, iterate over all children to see if they can scroll
     private fun isChildScrolling(
         eventX: Float,
         eventY: Float,
@@ -398,23 +411,14 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
         direction: Int,
     ): Boolean {
         var view: View
-        //Log.i("SCROLL", "called viewgroup with childCount:${viewGroup.childCount}")
         for (i in 0 until viewGroup.childCount) {
             view = viewGroup.getChildAt(i)
-            //Log.i("SCROLL", "Got child at $i")
             if (isViewAtLocation(eventX, eventY, view)) {
-/*                if (view is ScrollView || view is ScrollingView || view is NestedScrollView
-*//*                    || view is NestedScrollingChild || view is NestedScrollingChild2
-                    || view is NestedScrollingChild3 || view is NestedScrollingParent
-                    || view is NestedScrollingParent2 || view is NestedScrollingParent3*//*
-                )*/
                 if (view.canScrollVertically(-1) && direction == -1)
                     return true
                 if (view.canScrollVertically(1) && direction == 1)
                     return true
-                //Log.i("SCROLL", "${view.tag} child $i is ViewGroup : ${view is ViewGroup}")
                 if (view is ViewGroup) {
-                    //Log.i("SCROLL", "calling isChildScrolling")
                     if (isChildScrolling(eventX - view.left,
                             eventY - view.top,
                             view,
@@ -427,34 +431,34 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
         return false
     }
 
-    private fun isChildGrabClick(
-        eventX: Float,
-        eventY: Float,
-        viewGroup: ViewGroup,
-    ): Boolean {
-        for (i in 0 until viewGroup.childCount) {
-            val view = viewGroup.getChildAt(i)
-            if (isViewAtLocation(eventX, eventY, view)) {
-                if (view is ViewGroup) {
-                    if (isChildGrabClick(eventX - view.left, eventY - view.top, view))
+    /*
+        private fun isChildGrabClick(
+            eventX: Float,
+            eventY: Float,
+            viewGroup: ViewGroup,
+        ): Boolean {
+            for (i in 0 until viewGroup.childCount) {
+                val view = viewGroup.getChildAt(i)
+                if (isViewAtLocation(eventX, eventY, view)) {
+                    if (view is ViewGroup) {
+                        if (isChildGrabClick(eventX - view.left, eventY - view.top, view))
+                            return true
+                    }
+                    if (view.performClick()) {
                         return true
-                }
-                if (view.performClick()) {
-                    return true
+                    }
                 }
             }
+            return false
         }
-        return false
-    }
-
+    */
+    //checking if view under finger
     private fun isViewAtLocation(rawX: Float, rawY: Float, view: View): Boolean {
         if (view.left <= rawX && view.right >= rawX) {
             if (view.top <= rawY && view.bottom >= rawY) {
                 return true
             }
         }
-        /*Log.i("SCROLL",
-            "x:$rawX y:$rawY \n left:${view.left} right:${view.right} top:${view.top} bottom:${view.bottom} , under finger : $a")*/
         return false
     }
 }
