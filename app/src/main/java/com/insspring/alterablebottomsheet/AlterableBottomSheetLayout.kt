@@ -3,7 +3,6 @@ package com.insspring.alterablebottomsheet
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
 import android.view.*
 import android.widget.FrameLayout
 import android.widget.LinearLayout
@@ -43,8 +42,8 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
 
     private var prevTouchY: Float = 0f
     private var velocityTracker: VelocityTracker? = null
-    private var hide: Boolean = false
     private var border: Int = 0
+    private var hide = false
     private var travellingView: View? = null
     private var curTranslation: Float = 0f
 
@@ -160,14 +159,12 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                     velocityTracker = VelocityTracker.obtain()
                     velocityTracker?.addMovement(ev)
                     curTranslation = mForeground.translationY
-                    if (ev.y < border) {
-                        //Log.i("BOTTOMSHEET", "Out area")
+                    prevTouchY = ev.y
+                    if (ev.y < mForeground.y) {
                         hide = true
                         true
                     } else {
-                        //Log.i("BOTTOMSHEET", "Scroll area")
                         hide = false
-                        prevTouchY = ev.y
                         false
                     }
                 }
@@ -218,7 +215,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                     }
                 }
                 MotionEvent.ACTION_DOWN -> {
-                    if (mIsHidable && mHideOnOutClick && hide)
+                    if (hide && mHideOnOutClick && mIsHidable && mType != 1)
                         hide()
                 }
                 MotionEvent.ACTION_UP,
@@ -424,6 +421,26 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                             direction)
                     )
                         return true
+                }
+            }
+        }
+        return false
+    }
+
+    private fun isChildGrabClick(
+        eventX: Float,
+        eventY: Float,
+        viewGroup: ViewGroup,
+    ): Boolean {
+        for (i in 0 until viewGroup.childCount) {
+            val view = viewGroup.getChildAt(i)
+            if (isViewAtLocation(eventX, eventY, view)) {
+                if (view is ViewGroup) {
+                    if (isChildGrabClick(eventX - view.left, eventY - view.top, view))
+                        return true
+                }
+                if (view.performClick()) {
+                    return true
                 }
             }
         }
