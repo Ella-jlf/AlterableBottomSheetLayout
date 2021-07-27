@@ -50,93 +50,95 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
     init {
         this.translationZ = 10f
         mTouchSlop = ViewConfiguration.get(context).scaledTouchSlop
-        val typedArray = context.theme.obtainStyledAttributes(
+
+        context.theme.obtainStyledAttributes(
             attrs,
             R.styleable.AlterableBottomSheetLayout,
             0,
             0
         ).apply {
             // getting all attrs
-            mForegroundBackground =
-                getResourceId(R.styleable.AlterableBottomSheetLayout_foreground,
-                    R.drawable.bg_round_corners)
-            mMarginTop =
-                getDimensionPixelSize(R.styleable.AlterableBottomSheetLayout_margin_top, 0)
-            mBackgroundColor =
-                getColor(
-                    R.styleable.AlterableBottomSheetLayout_background_color, BACKGROUND
-                )
-            mForegroundColor =
-                getColor(
-                    R.styleable.AlterableBottomSheetLayout_foreground_color, FOREGROUND
-                )
-            mIsDraggable = getBoolean(R.styleable.AlterableBottomSheetLayout_isDraggable, true)
-            mHideOnOutClick =
-                getBoolean(R.styleable.AlterableBottomSheetLayout_hide_on_background_click, true)
-            mIsHidable = getBoolean(R.styleable.AlterableBottomSheetLayout_isHidable, true)
-            mHeadLayout = getInt(R.styleable.AlterableBottomSheetLayout_head_layout, 0)
-            mForegroundHeight =
-                getLayoutDimension(R.styleable.AlterableBottomSheetLayout_foreground_height,
-                    -1)
-            mType = getInt(R.styleable.AlterableBottomSheetLayout_foreground_type, 0)
-            mIntermediateHeight =
-                getDimensionPixelSize(R.styleable.AlterableBottomSheetLayout_intermediate_height,
-                    300)
-            mBackgroundTransparency =
-                1f - getFloat(R.styleable.AlterableBottomSheetLayout_transparency_percent, 0f)
-            // adding background
+            mForegroundBackground = getResourceId(
+                R.styleable.AlterableBottomSheetLayout_foreground,
+                R.drawable.bg_round_corners)
+            mMarginTop = getDimensionPixelSize(
+                R.styleable.AlterableBottomSheetLayout_margin_top,
+                0)
+            mBackgroundColor = getColor(
+                R.styleable.AlterableBottomSheetLayout_background_color,
+                BACKGROUND
+            )
+            mForegroundColor = getColor(
+                R.styleable.AlterableBottomSheetLayout_foreground_color,
+                FOREGROUND
+            )
+            mIsDraggable = getBoolean(
+                R.styleable.AlterableBottomSheetLayout_isDraggable,
+                true)
+            mHideOnOutClick = getBoolean(
+                R.styleable.AlterableBottomSheetLayout_hide_on_background_click,
+                true)
+            mIsHidable = getBoolean(
+                R.styleable.AlterableBottomSheetLayout_isHidable,
+                true)
+            mHeadLayout = getInt(
+                R.styleable.AlterableBottomSheetLayout_head_layout,
+                0)
+            mForegroundHeight = getLayoutDimension(
+                R.styleable.AlterableBottomSheetLayout_foreground_height,
+                -1)
+            mType = getInt(
+                R.styleable.AlterableBottomSheetLayout_foreground_type,
+                0)
+            mIntermediateHeight = getDimensionPixelSize(
+                R.styleable.AlterableBottomSheetLayout_intermediate_height,
+                300)
+            mBackgroundTransparency = 1f - getFloat(
+                R.styleable.AlterableBottomSheetLayout_transparency_percent,
+                0f)
+
+            //creating views
             mBackground = View(context).apply {
                 alpha = mBackgroundTransparency
                 setBackgroundColor(mBackgroundColor)
             }
-            addView(mBackground, 0)
-            //creating certain type of layout
             when (mHeadLayout) {
                 1 -> {
                     mForeground = LinearLayout(context).apply {
                         orientation = LinearLayout.VERTICAL
                         gravity = Gravity.CENTER
                         setBackgroundResource(mForegroundBackground)
-                        layoutParams =
-                            LayoutParams(
-                                LayoutParams.MATCH_PARENT,
-                                mForegroundHeight,
-                                Gravity.BOTTOM
-                            ).apply {
-                                setMargins(0, mMarginTop, 0, 0)
-                            }
+                        layoutParams = createLayoutParams()
                     }
                 }
                 2 -> {
                     mForeground = RelativeLayout(context).apply {
                         setBackgroundResource(mForegroundBackground)
-                        layoutParams =
-                            LayoutParams(
-                                LayoutParams.MATCH_PARENT,
-                                mForegroundHeight,
-                                Gravity.BOTTOM
-                            ).apply {
-                                setMargins(0, mMarginTop, 0, 0)
-                            }
+                        layoutParams = createLayoutParams()
                     }
                 }
                 else -> {
                     mForeground = FrameLayout(context).apply {
                         setBackgroundResource(mForegroundBackground)
-                        layoutParams =
-                            LayoutParams(
-                                LayoutParams.MATCH_PARENT,
-                                mForegroundHeight,
-                                Gravity.BOTTOM
-                            ).apply {
-                                setMargins(0, mMarginTop, 0, 0)
-                            }
+                        layoutParams = createLayoutParams()
                     }
                 }
             }
-            addView(mForeground, 1)
+            this.recycle()
         }
-        typedArray.recycle()
+
+        addView(mBackground, 0)
+        addView(mForeground, 1)
+    }
+
+    private fun createLayoutParams(): LayoutParams {
+        return LayoutParams(
+            LayoutParams.MATCH_PARENT,
+            mForegroundHeight,
+            Gravity.BOTTOM
+        ).apply {
+            setMargins(0, mMarginTop, 0, 0)
+        }
     }
 
     // for the first two children(background and foreground) the same as for frameLayout
@@ -151,19 +153,21 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
             }
         }
         border = mForeground.top
-        //Log.i("SIZE", "$border")
     }
 
     //intercepted only background click, and move if nobody of children can process
     override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
         if (ev != null) {
             return when (ev.actionMasked) {
+
                 MotionEvent.ACTION_DOWN -> {
                     velocityTracker?.recycle()
                     velocityTracker = VelocityTracker.obtain()
                     velocityTracker?.addMovement(ev)
+
                     curTranslation = mForeground.translationY
                     prevTouchY = ev.y
+
                     if (ev.y < mForeground.y) {
                         hide = true
                         true
@@ -172,10 +176,10 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                         false
                     }
                 }
+
                 MotionEvent.ACTION_MOVE -> {
                     velocityTracker?.addMovement(ev)
                     if (abs(ev.y - prevTouchY) > mTouchSlop) {
-                        //let children intercept it
                         !isChildScrolling(ev.rawX,
                             ev.rawY,
                             this,
@@ -183,6 +187,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                     } else
                         false
                 }
+
                 else ->
                     false
             }
@@ -203,6 +208,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
         if (event != null) {
             velocityTracker?.addMovement(event)
             when (event.actionMasked) {
+
                 MotionEvent.ACTION_MOVE -> {
                     if (mIsDraggable) {
                         // drag view with finger
@@ -219,20 +225,23 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                                     mForeground.translationY = dY + curTranslation
                             }
                         }
-                        //Log.i("VALS", "\ncurrent: ${event.y} \n previous: $prevTouchY \n translation: $dY")
                     }
                 }
+
                 MotionEvent.ACTION_DOWN -> {
                     // that event come only if background was pressed
                     if (hide && mHideOnOutClick && mIsHidable && mType != 1)
                         hide()
                 }
+
                 MotionEvent.ACTION_UP,
                 MotionEvent.ACTION_CANCEL,
                 -> {
                     if (!hide && mIsDraggable) {
+
                         velocityTracker?.computeCurrentVelocity(1000)
                         val velocity = velocityTracker?.yVelocity ?: 0f
+
                         //check if we fling view, it has to fly based on it's velocity
                         if (abs(velocity) > 1000) {
                             when (mType) {
@@ -255,19 +264,6 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
         return true
     }
 
-    //velocity based animations
-    private fun finalAnimationWithFling0(velocity: Float) {
-        animateWithFling(velocity, 0f, mForeground.height.toFloat())
-    }
-
-    private fun finalAnimationWithFling1(velocity: Float) {
-        animateWithFling(velocity, 0f, mForeground.height - mIntermediateHeight.toFloat())
-    }
-
-    private fun finalAnimationWithFling2(velocity: Float) {
-        finalAnimationWithFling0(velocity)
-    }
-
     private fun animateWithFling(velocity: Float, min: Float, max: Float) {
         val flingAnimation = FlingAnimation(mForeground, DynamicAnimation.TRANSLATION_Y).apply {
             friction = 1f
@@ -283,6 +279,19 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
             }
         }
         flingAnimation.start()
+    }
+
+    //velocity based animations
+    private fun finalAnimationWithFling0(velocity: Float) {
+        animateWithFling(velocity, 0f, mForeground.height.toFloat())
+    }
+
+    private fun finalAnimationWithFling1(velocity: Float) {
+        animateWithFling(velocity, 0f, mForeground.height - mIntermediateHeight.toFloat())
+    }
+
+    private fun finalAnimationWithFling2(velocity: Float) {
+        finalAnimationWithFling0(velocity)
     }
 
     private fun animateWithSpring(finalPos: Float) {
@@ -431,27 +440,6 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
         return false
     }
 
-    /*
-        private fun isChildGrabClick(
-            eventX: Float,
-            eventY: Float,
-            viewGroup: ViewGroup,
-        ): Boolean {
-            for (i in 0 until viewGroup.childCount) {
-                val view = viewGroup.getChildAt(i)
-                if (isViewAtLocation(eventX, eventY, view)) {
-                    if (view is ViewGroup) {
-                        if (isChildGrabClick(eventX - view.left, eventY - view.top, view))
-                            return true
-                    }
-                    if (view.performClick()) {
-                        return true
-                    }
-                }
-            }
-            return false
-        }
-    */
     //checking if view under finger
     private fun isViewAtLocation(rawX: Float, rawY: Float, view: View): Boolean {
         if (view.left <= rawX && view.right >= rawX) {
