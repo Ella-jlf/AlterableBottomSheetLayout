@@ -243,6 +243,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
             MotionEvent.ACTION_MOVE -> {
                 if (mIsDraggable) {
                     val dY = event.y - prevTouchY // drag with finger
+
                     if (checkAcceptableBounds(dY))
                         mForeground.translationY = dY + curTranslation
                 }
@@ -261,6 +262,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                     velocityTracker?.computeCurrentVelocity(1000)
 
                     val velocity = velocityTracker?.yVelocity ?: 0f
+
                     if (abs(velocity) > 1000) {
                         finalAnimationWithFling(velocity)
                     } else {
@@ -366,6 +368,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
 
             ForegroundType.WithoutHide -> {
                 val center = (mForeground.height - mIntermediateHeight) / 2 + border
+
                 if (mForeground.y < center)
                     animateWithSpring(0f)
                 else
@@ -374,12 +377,14 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
 
             ForegroundType.Mixed -> {
                 val oneThirdTop = (mForeground.height - mIntermediateHeight) / 2 + border
+
                 if (mForeground.y <= oneThirdTop) {
                     animateWithSpring(0f)
                     return
                 }
 
                 val oneThirdBottom = border + mForeground.height - mIntermediateHeight / 2
+
                 if (mForeground.y >= oneThirdBottom && mIsHidable)
                     animateWithSpring(mForeground.height.toFloat())
                 else
@@ -408,6 +413,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
         val parentBottom: Int = bottom - top - 0
 
         val count = 2
+
         for (i in 0 until count) {
             val child = getChildAt(i)
 
@@ -501,7 +507,6 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
      * checking if view under finger
      */
     private fun isViewAtLocation(rawX: Float, rawY: Float, view: View): Boolean {
-
         if (view.left <= rawX && view.right >= rawX) {
             if (view.top <= rawY && view.bottom >= rawY) {
                 return true
