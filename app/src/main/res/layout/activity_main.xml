@@ -16,7 +16,7 @@
         app:foreground_height="wrap_content"
         app:foreground_type="mixed"
         app:margin_top="128dp"
-        app:transparency_percent="0.2">
+        app:transparency_percent="0.8">
 
         <FrameLayout
             android:id="@+id/vgBottomSheetFilters"
