@@ -19,7 +19,7 @@
             <enum name="wrap_content" value="-2" />
         </attr>
         <attr name="foreground_type" format="enum">
-            <enum name="default" value="0" />
+            <enum name="default_type" value="0" />
             <enum name="without_hide" value="1" />
             <enum name="mixed" value="2" />
         </attr>

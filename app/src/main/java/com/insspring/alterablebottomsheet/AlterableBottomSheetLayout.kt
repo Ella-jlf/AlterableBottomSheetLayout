@@ -3,20 +3,20 @@ package com.insspring.alterablebottomsheet
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
+import android.util.Log
 import android.view.*
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import androidx.core.view.isVisible
 import androidx.dynamicanimation.animation.DynamicAnimation
-import androidx.dynamicanimation.animation.FlingAnimation
 import androidx.dynamicanimation.animation.SpringAnimation
 import androidx.dynamicanimation.animation.SpringForce
 import java.lang.Exception
 import kotlin.math.abs
 
 enum class ForegroundType {
-    Default,
+    DefaultType,
     WithoutHide,
     Mixed,
 }
@@ -65,6 +65,9 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
     private var hide = false
     private var travellingView: View? = null
     private var curTranslation: Float = 0f
+    private var alphaHeightMax: Float = 0f
+    private var alphaHeightMin: Float = 0f
+    private var debug: Boolean = true
 
     init {
         this.translationZ = 10f
@@ -125,7 +128,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                 R.styleable.AlterableBottomSheetLayout_foreground_type,
                 0)
             mType = when (mTypeValue) {
-                0 -> ForegroundType.Default
+                0 -> ForegroundType.DefaultType
                 1 -> ForegroundType.WithoutHide
                 2 -> ForegroundType.Mixed
                 else -> throw Exception("no such value in ForegroundType enum")
@@ -263,11 +266,11 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
 
                     val velocity = velocityTracker?.yVelocity ?: 0f
 
-                    if (abs(velocity) > 1000) {
-                        finalAnimationWithFling(velocity)
-                    } else {
-                        finalAnimationWithSpring()
+                    if (debug) {
+                        Log.i("DEBUG", "VELOCITY: velocity = $velocity")
                     }
+
+                    finalAnimationWithSpring(velocity)
 
                     velocityTracker?.clear()
                 }
@@ -278,26 +281,16 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
     }
 
     /*
-     * velocity based animation
-     */
-    private fun finalAnimationWithFling(velocity: Float) {
-        when (mType) {
-            ForegroundType.Default, ForegroundType.Mixed -> {
-                animateWithFling(velocity, 0f, mForeground.height.toFloat())
-            }
-
-            ForegroundType.WithoutHide -> {
-                animateWithFling(velocity, 0f, mForeground.height - mIntermediateHeight.toFloat())
-            }
-        }
-    }
-
-    /*
      * final animations to place view in exact spot
      */
-    private fun finalAnimationWithSpring() {
+    private fun finalAnimationWithSpring(velocity: Float = 0f) {
         when (mType) {
-            ForegroundType.Default -> {
+            ForegroundType.DefaultType -> {
+                if (abs(velocity) > 2000) {
+                    animateToRightDirection(velocity, 0f, mForeground.height.toFloat())
+
+                    return
+                }
                 val center = mForeground.height / 2 + border
 
                 if (mForeground.y > center && mIsHidable)
@@ -307,6 +300,15 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
             }
 
             ForegroundType.WithoutHide -> {
+                if (abs(velocity) > 2000) {
+                    animateToRightDirection(velocity,
+                        0f,
+                        mForeground.height - mIntermediateHeight.toFloat()
+                    )
+
+                    return
+                }
+
                 val center = (mForeground.height - mIntermediateHeight) / 2 + border
 
                 if (mForeground.y < center)
@@ -316,6 +318,24 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
             }
 
             ForegroundType.Mixed -> {
+                if (abs(velocity) > 2000) {
+                    val center = (mForeground.height - mIntermediateHeight) / 2 + border
+
+                    if (mForeground.y < center)
+                        animateToRightDirection(
+                            velocity,
+                            0f,
+                            mForeground.height.toFloat() - mIntermediateHeight
+                        )
+                    else
+                        animateToRightDirection(
+                            velocity,
+                            0f,
+                            mForeground.height.toFloat())
+
+                    return
+                }
+
                 val oneThirdTop = (mForeground.height - mIntermediateHeight) / 2 + border
 
                 if (mForeground.y <= oneThirdTop) {
@@ -336,7 +356,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
     private fun checkAcceptableBounds(dY: Float): Boolean {
 
         return when (mType) {
-            ForegroundType.Default,
+            ForegroundType.DefaultType,
             ForegroundType.Mixed,
             -> {
                 dY + curTranslation >= 0 && dY + curTranslation <= mForeground.height
@@ -347,23 +367,6 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                 dY + curTranslation >= 0 && dY + curTranslation <= mForeground.height - mIntermediateHeight
             }
         }
-    }
-
-    private fun animateWithFling(velocity: Float, min: Float, max: Float) {
-        val flingAnimation = FlingAnimation(mForeground, DynamicAnimation.TRANSLATION_Y)
-            .apply {
-                friction = 1f
-
-                setStartVelocity(velocity)
-                setMinValue(min)
-                setMaxValue(max)
-
-                addEndListener { _, _, _, _ ->
-                    finalAnimationWithSpring()
-                }
-            }
-
-        flingAnimation.start()
     }
 
     private fun animateWithSpring(finalPos: Float) {
@@ -539,5 +542,13 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
 
     private fun dragViewAlongWithFinger(dY: Float) {
         mForeground.translationY = dY + curTranslation
+    }
+
+    private fun animateToRightDirection(velocity: Float, topPos: Float, bottomPos: Float) {
+        if (velocity > 0) {
+            animateWithSpring(bottomPos)
+        } else {
+            animateWithSpring(topPos)
+        }
     }
 }
