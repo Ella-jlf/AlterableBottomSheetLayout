@@ -15,16 +15,16 @@ import androidx.dynamicanimation.animation.SpringForce
 import java.lang.Exception
 import kotlin.math.abs
 
-enum class ForegroundType(val int: Int) {
-    WithoutIntermediate(0),
-    WithoutHide(1),
-    Mixed(2),
+enum class ForegroundType {
+    WithoutIntermediate,
+    WithoutHide,
+    Mixed,
 }
 
-enum class HeadLayout(val int: Int) {
-    FRAME_LAYOUT(0),
-    LINEAR_LAYOUT(1),
-    RELATIVE_LAYOUT(2)
+enum class HeadLayout {
+    FRAME_LAYOUT,
+    LINEAR_LAYOUT,
+    RELATIVE_LAYOUT,
 }
 
 enum class Direction(val int: Int) {
@@ -103,13 +103,15 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                 R.styleable.AlterableBottomSheetLayout_hide_on_background_click,
                 true)
 
-            val headLayoutInt = getInt(
+            val headLayoutValue = getInt(
                 R.styleable.AlterableBottomSheetLayout_head_layout,
                 0)
-            mHeadLayout = HeadLayout.values()
-                .find {
-                    it.int == headLayoutInt
-                } ?: throw Exception("headLayoutInt not in HeadLayout enum")
+            mHeadLayout = when (headLayoutValue) {
+                0 -> HeadLayout.FRAME_LAYOUT
+                1 -> HeadLayout.LINEAR_LAYOUT
+                2 -> HeadLayout.RELATIVE_LAYOUT
+                else -> throw Exception("no such value in HeadLayout enum")
+            }
 
             mIsHidable = getBoolean(
                 R.styleable.AlterableBottomSheetLayout_isHidable,
@@ -119,14 +121,15 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                 R.styleable.AlterableBottomSheetLayout_foreground_height,
                 -1)
 
-            val mTypeInt = getInt(
+            val mTypeValue = getInt(
                 R.styleable.AlterableBottomSheetLayout_foreground_type,
                 0)
-            mType = ForegroundType.values()
-                .find {
-                    it.int == mTypeInt
-                } ?: throw Exception("mTypeInt not in ForegroundType enum")
-
+            mType = when (mTypeValue) {
+                0 -> ForegroundType.WithoutIntermediate
+                1 -> ForegroundType.WithoutHide
+                2 -> ForegroundType.Mixed
+                else -> throw Exception("no such value in ForegroundType enum")
+            }
             mIntermediateHeight = getDimensionPixelSize(
                 R.styleable.AlterableBottomSheetLayout_intermediate_height,
                 300)
