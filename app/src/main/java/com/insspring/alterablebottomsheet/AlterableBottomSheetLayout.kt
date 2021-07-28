@@ -15,16 +15,16 @@ import androidx.dynamicanimation.animation.SpringForce
 import java.lang.Exception
 import kotlin.math.abs
 
-enum class ForegroundType {
-    WithoutIntermediate,
-    WithoutHide,
-    Mixed,
+enum class ForegroundType(val int: Int) {
+    WithoutIntermediate(0),
+    WithoutHide(1),
+    Mixed(2),
 }
 
-enum class HeadLayout {
-    FRAME_LAYOUT,
-    LINEAR_LAYOUT,
-    RELATIVE_LAYOUT
+enum class HeadLayout(val int: Int) {
+    FRAME_LAYOUT(0),
+    LINEAR_LAYOUT(1),
+    RELATIVE_LAYOUT(2)
 }
 
 enum class Direction(val int: Int) {
@@ -49,10 +49,10 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
     private var mForegroundColor: Int
     private var mHideOnOutClick: Boolean
     private var mBackgroundTransparency: Float
-    private var mHeadLayout: Int
+    private var mHeadLayout: HeadLayout
     private var mForegroundHeight: Int
     private var mIsDraggable: Boolean
-    private var mType: Int
+    private var mType: ForegroundType
     private var mIntermediateHeight: Int
 
     private var mBackground: View
@@ -80,41 +80,61 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
             mForegroundBackground = getResourceId(
                 R.styleable.AlterableBottomSheetLayout_foreground,
                 R.drawable.bg_round_corners)
+
             mMarginTop = getDimensionPixelSize(
                 R.styleable.AlterableBottomSheetLayout_margin_top,
                 0)
+
             mBackgroundColor = getColor(
                 R.styleable.AlterableBottomSheetLayout_background_color,
                 BACKGROUND
             )
+
             mForegroundColor = getColor(
                 R.styleable.AlterableBottomSheetLayout_foreground_color,
                 FOREGROUND
             )
+
             mIsDraggable = getBoolean(
                 R.styleable.AlterableBottomSheetLayout_isDraggable,
                 true)
+
             mHideOnOutClick = getBoolean(
                 R.styleable.AlterableBottomSheetLayout_hide_on_background_click,
                 true)
+
+            val headLayoutInt = getInt(
+                R.styleable.AlterableBottomSheetLayout_head_layout,
+                0)
+            mHeadLayout = HeadLayout.values()
+                .find {
+                    it.int == headLayoutInt
+                } ?: throw Exception("headLayoutInt not in HeadLayout enum")
+
             mIsHidable = getBoolean(
                 R.styleable.AlterableBottomSheetLayout_isHidable,
                 true)
-            mHeadLayout = getInt(
-                R.styleable.AlterableBottomSheetLayout_head_layout,
-                0)
+
             mForegroundHeight = getLayoutDimension(
                 R.styleable.AlterableBottomSheetLayout_foreground_height,
                 -1)
-            mType = getInt(
+
+            val mTypeInt = getInt(
                 R.styleable.AlterableBottomSheetLayout_foreground_type,
                 0)
+            mType = ForegroundType.values()
+                .find {
+                    it.int == mTypeInt
+                } ?: throw Exception("mTypeInt not in ForegroundType enum")
+
             mIntermediateHeight = getDimensionPixelSize(
                 R.styleable.AlterableBottomSheetLayout_intermediate_height,
                 300)
+
             mBackgroundTransparency = 1f - getFloat(
                 R.styleable.AlterableBottomSheetLayout_transparency_percent,
                 0f)
+
             this.recycle()
         }
 
@@ -126,23 +146,19 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
 
         /* creating foreground Layout */
         when (mHeadLayout) {
-            HeadLayout.LINEAR_LAYOUT.ordinal -> {
+            HeadLayout.LINEAR_LAYOUT -> {
                 mForeground = LinearLayout(context).apply {
                     orientation = LinearLayout.VERTICAL
                     gravity = Gravity.CENTER
                 }
             }
 
-            HeadLayout.RELATIVE_LAYOUT.ordinal -> {
+            HeadLayout.RELATIVE_LAYOUT -> {
                 mForeground = RelativeLayout(context)
             }
 
-            HeadLayout.FRAME_LAYOUT.ordinal -> {
+            HeadLayout.FRAME_LAYOUT -> {
                 mForeground = FrameLayout(context)
-            }
-
-            else -> {
-                throw Exception("non-existing head layout")
             }
         }
         mForeground.apply {
@@ -232,7 +248,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
 
             MotionEvent.ACTION_DOWN -> {
                 /* that event come only if background was pressed */
-                if (hide && mHideOnOutClick && mIsHidable && mType != ForegroundType.WithoutHide.ordinal)
+                if (hide && mHideOnOutClick && mIsHidable && mType != ForegroundType.WithoutHide)
                     hide()
             }
 
@@ -263,12 +279,11 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
      */
     private fun finalAnimationWithFling(velocity: Float) {
         when (mType) {
-
-            ForegroundType.WithoutIntermediate.ordinal, ForegroundType.Mixed.ordinal -> {
+            ForegroundType.WithoutIntermediate, ForegroundType.Mixed -> {
                 animateWithFling(velocity, 0f, mForeground.height.toFloat())
             }
 
-            ForegroundType.WithoutHide.ordinal -> {
+            ForegroundType.WithoutHide -> {
                 animateWithFling(velocity, 0f, mForeground.height - mIntermediateHeight.toFloat())
             }
         }
@@ -279,7 +294,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
      */
     private fun finalAnimationWithSpring() {
         when (mType) {
-            ForegroundType.WithoutIntermediate.ordinal -> {
+            ForegroundType.WithoutIntermediate -> {
                 val center = mForeground.height / 2 + border
 
                 if (mForeground.y <= center && !mIsHidable)
@@ -288,7 +303,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                     animateWithSpring(mForeground.height.toFloat())
             }
 
-            ForegroundType.WithoutHide.ordinal -> {
+            ForegroundType.WithoutHide -> {
                 val center = (mForeground.height - mIntermediateHeight) / 2 + border
 
                 if (mForeground.y < center)
@@ -297,7 +312,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                     animateWithSpring(mForeground.height - mIntermediateHeight.toFloat())
             }
 
-            ForegroundType.Mixed.ordinal -> {
+            ForegroundType.Mixed -> {
                 val oneThirdTop = (mForeground.height - mIntermediateHeight) / 2 + border
 
                 if (mForeground.y <= oneThirdTop) {
@@ -312,29 +327,21 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                 else
                     animateWithSpring(mForeground.height - mIntermediateHeight.toFloat())
             }
-
-            else -> {
-                throw Exception("non-existing foreground type")
-            }
         }
     }
 
     private fun checkAcceptableBounds(dY: Float): Boolean {
 
         return when (mType) {
-            ForegroundType.WithoutIntermediate.ordinal,
-            ForegroundType.Mixed.ordinal,
+            ForegroundType.WithoutIntermediate,
+            ForegroundType.Mixed,
             -> {
                 dY + curTranslation >= 0 && dY + curTranslation <= mForeground.height
             }
 
-            ForegroundType.WithoutHide.ordinal,
+            ForegroundType.WithoutHide,
             -> {
                 dY + curTranslation >= 0 && dY + curTranslation <= mForeground.height - mIntermediateHeight
-            }
-
-            else -> {
-                throw Exception("non-existing foreground type")
             }
         }
     }
@@ -456,7 +463,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
         eventX: Float,
         eventY: Float,
         viewGroup: ViewGroup,
-        direction: Int,
+        direction: Direction,
     ): Boolean {
         var view: View
 
@@ -464,10 +471,10 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
             view = viewGroup.getChildAt(i)
 
             if (isViewAtLocation(eventX, eventY, view)) {
-                if (view.canScrollVertically(Direction.UP.int) && direction == Direction.UP.int)
+                if (view.canScrollVertically(Direction.UP.int) && direction == Direction.UP)
                     return true
 
-                if (view.canScrollVertically(Direction.DOWN.int) && direction == Direction.DOWN.int)
+                if (view.canScrollVertically(Direction.DOWN.int) && direction == Direction.DOWN)
                     return true
 
                 if (view is ViewGroup) {
@@ -488,10 +495,10 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
      * checking if view under finger
      */
     private fun isViewAtLocation(rawX: Float, rawY: Float, view: View): Boolean {
-        if (view.left <= rawX && view.right >= rawX) {
-            if (view.top <= rawY && view.bottom >= rawY) {
-                return true
-            }
+        if (view.left <= rawX && view.right >= rawX
+            || view.top <= rawY && view.bottom >= rawY
+        ) {
+            return true
         }
 
         return false
@@ -519,15 +526,12 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
         }
     }
 
-    /*
-     * direction -1 - up, 1 - down
-     */
-    private fun getDirection(cur: Float, prev: Float): Int {
+    private fun getDirection(cur: Float, prev: Float): Direction {
 
         return if (cur > prev)
-            Direction.UP.int
+            Direction.UP
         else
-            Direction.DOWN.int
+            Direction.DOWN
     }
 
     private fun dragViewAlongWithFinger(dY: Float) {
