@@ -21,9 +21,10 @@
         android:layout_height="match_parent"
         android:layout_gravity="center"
         app:foreground_height="wrap_content"
-        app:foreground_type="mixed"
+        app:foreground_type="without_hide"
+        app:is_hide_on_bg_click="false"
         app:margin_top="128dp"
-        app:transparency_percent="0.8">
+        app:transparency_percent="1.0">
 
         <FrameLayout
             android:id="@+id/vgBottomSheetFilters"

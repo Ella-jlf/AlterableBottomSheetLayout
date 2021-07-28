@@ -43,15 +43,14 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
     @Suppress("PrivatePropertyName")
     private val FOREGROUND = 0xFFFFFFFF.toInt()
 
-    private var mIsHidable: Boolean
     private var mForegroundBackground: Int
     private var mMarginTop: Int
     private var mBackgroundColor: Int
     private var mForegroundColor: Int
-    private var mHideOnOutClick: Boolean
     private var mBackgroundTransparency: Float
     private var mHeadLayout: HeadLayout
     private var mForegroundHeight: Int
+    private var mIsHideOnBgClick: Boolean
     private var mIsDraggable: Boolean
     private var mType: ForegroundType
     private var mIntermediateHeight: Int
@@ -63,7 +62,6 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
     private var prevTouchY: Float = 0f
     private var velocityTracker: VelocityTracker? = null
     private var border: Int = 0
-    private var hide = false
     private var travellingView: View? = null
     private var curTranslation: Float = 0f
 
@@ -97,11 +95,11 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
             )
 
             mIsDraggable = getBoolean(
-                R.styleable.AlterableBottomSheetLayout_isDraggable,
+                R.styleable.AlterableBottomSheetLayout_is_draggable,
                 true)
 
-            mHideOnOutClick = getBoolean(
-                R.styleable.AlterableBottomSheetLayout_hide_on_background_click,
+            mIsHideOnBgClick = getBoolean(
+                R.styleable.AlterableBottomSheetLayout_is_hide_on_bg_click,
                 true)
 
             val headLayoutValue = getInt(
@@ -113,10 +111,6 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                 2 -> HeadLayout.RELATIVE_LAYOUT
                 else -> throw Exception("no such value in HeadLayout enum")
             }
-
-            mIsHidable = getBoolean(
-                R.styleable.AlterableBottomSheetLayout_isHidable,
-                true)
 
             mForegroundHeight = getLayoutDimension(
                 R.styleable.AlterableBottomSheetLayout_foreground_height,
@@ -174,9 +168,10 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
         addView(mBackground, 0)
         addView(mForeground, 1)
 
-        mBackground.setOnClickListener {
-            hide()
-        }
+        if (mIsHideOnBgClick)
+            mBackground.setOnClickListener {
+                hide()
+            }
     }
 
     fun show() {
@@ -185,7 +180,13 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
     }
 
     fun hide() {
-        animateWithSpring(mForeground.height.toFloat())
+        when (mType) {
+            ForegroundType.WithoutHide ->
+                animateWithSpring(mForeground.height.toFloat() - mIntermediateHeight)
+
+            ForegroundType.Mixed, ForegroundType.DefaultType ->
+                animateWithSpring(mForeground.height.toFloat())
+        }
     }
 
     /*
@@ -264,7 +265,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
             MotionEvent.ACTION_UP,
             MotionEvent.ACTION_CANCEL,
             -> {
-                if (!hide && mIsDraggable) {
+                if (mIsDraggable) {
                     velocityTracker?.computeCurrentVelocity(1000)
 
                     val velocity = velocityTracker?.yVelocity ?: 0f
@@ -295,7 +296,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                 }
                 val center = mForeground.height / 2 + border
 
-                if (mForeground.y > center && mIsHidable)
+                if (mForeground.y > center)
                     animateWithSpring(mForeground.height.toFloat())
                 else
                     animateWithSpring(0f)
@@ -347,7 +348,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
 
                 val oneThirdBottom = border + mForeground.height - mIntermediateHeight / 2
 
-                if (mForeground.y >= oneThirdBottom && mIsHidable)
+                if (mForeground.y >= oneThirdBottom)
                     animateWithSpring(mForeground.height.toFloat())
                 else
                     animateWithSpring(mForeground.height - mIntermediateHeight.toFloat())
