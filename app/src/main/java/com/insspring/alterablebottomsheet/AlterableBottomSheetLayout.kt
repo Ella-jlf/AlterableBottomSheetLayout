@@ -16,7 +16,7 @@ import java.lang.Exception
 import kotlin.math.abs
 
 enum class ForegroundType {
-    WithoutIntermediate,
+    Default,
     WithoutHide,
     Mixed,
 }
@@ -125,7 +125,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                 R.styleable.AlterableBottomSheetLayout_foreground_type,
                 0)
             mType = when (mTypeValue) {
-                0 -> ForegroundType.WithoutIntermediate
+                0 -> ForegroundType.Default
                 1 -> ForegroundType.WithoutHide
                 2 -> ForegroundType.Mixed
                 else -> throw Exception("no such value in ForegroundType enum")
@@ -282,7 +282,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
      */
     private fun finalAnimationWithFling(velocity: Float) {
         when (mType) {
-            ForegroundType.WithoutIntermediate, ForegroundType.Mixed -> {
+            ForegroundType.Default, ForegroundType.Mixed -> {
                 animateWithFling(velocity, 0f, mForeground.height.toFloat())
             }
 
@@ -297,13 +297,13 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
      */
     private fun finalAnimationWithSpring() {
         when (mType) {
-            ForegroundType.WithoutIntermediate -> {
+            ForegroundType.Default -> {
                 val center = mForeground.height / 2 + border
 
-                if (mForeground.y <= center && !mIsHidable)
-                    animateWithSpring(0f)
-                else
+                if (mForeground.y > center && mIsHidable)
                     animateWithSpring(mForeground.height.toFloat())
+                else
+                    animateWithSpring(0f)
             }
 
             ForegroundType.WithoutHide -> {
@@ -336,7 +336,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
     private fun checkAcceptableBounds(dY: Float): Boolean {
 
         return when (mType) {
-            ForegroundType.WithoutIntermediate,
+            ForegroundType.Default,
             ForegroundType.Mixed,
             -> {
                 dY + curTranslation >= 0 && dY + curTranslation <= mForeground.height
