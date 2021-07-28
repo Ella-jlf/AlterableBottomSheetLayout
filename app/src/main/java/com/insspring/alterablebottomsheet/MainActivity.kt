@@ -30,6 +30,10 @@ class MainActivity : AppCompatActivity() {
 /*        view.vBtnCLickMe.setOnClickListener {
             Log.i("CLICK", "Inner Button")
         }*/
+        view.vBtnBlaBla.setOnClickListener {
+            Log.i("CLICK", "" +
+                    "I was Clicked")
+        }
     }
 }
 

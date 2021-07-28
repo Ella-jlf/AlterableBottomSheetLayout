@@ -56,7 +56,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
     private var mType: ForegroundType
     private var mIntermediateHeight: Int
 
-    private var mBackground: View
+    private var mBackground: Background
     private var mForeground: ViewGroup
     private val mTouchSlop: Int
 
@@ -143,10 +143,11 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
         }
 
         /* creating background View */
-        mBackground = View(context).apply {
-            alpha = mBackgroundTransparency
-            setBackgroundColor(mBackgroundColor)
-        }
+        mBackground = Background(context)
+            .apply {
+                alpha = mBackgroundTransparency
+                setBackgroundColor(mBackgroundColor)
+            }
 
         /* creating foreground Layout */
         when (mHeadLayout) {
@@ -197,11 +198,16 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
         tossOverChildViews()
 
         border = mForeground.top
+        mBackground.border = border.toFloat()
+    }
+
+    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
+        return super.dispatchTouchEvent(ev)
     }
 
     /*
-     *intercepted only background click, and move if nobody of children can process
-     */
+         *intercepted only background click, and move if nobody of children can process
+         */
     override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
         if (ev == null)
             return false
@@ -255,15 +261,6 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                 return true
             }
 
-            MotionEvent.ACTION_DOWN -> {
-                if (hide && mHideOnOutClick && mIsHidable && mType != ForegroundType.WithoutHide) {
-                    hide()
-                    return true
-                }
-                if (isInterceptClickWithForeground(event.rawX, event.rawY))
-                    return true
-            }
-
             MotionEvent.ACTION_UP,
             MotionEvent.ACTION_CANCEL,
             -> {
@@ -280,7 +277,8 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                 return true
             }
         }
-
+        if (isInterceptClickWithForeground(event.rawX, event.rawY))
+            return true
         return false
     }
 
@@ -578,5 +576,21 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
         mBackground.alpha = curAlpha
 
         mBackground.isVisible = curAlpha != 0f
+    }
+}
+
+class Background @kotlin.jvm.JvmOverloads constructor(
+    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0,
+) : View(context, attrs, defStyleAttr) {
+    var border = 0f
+
+    @SuppressLint("ClickableViewAccessibility")
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        if (event != null && border > event.y) {
+            performClick()
+            return true
+        }
+
+        return false
     }
 }

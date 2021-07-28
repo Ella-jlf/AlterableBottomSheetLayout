@@ -7,6 +7,13 @@
     app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
     tools:context=".MainActivity">
 
+    <Button
+        android:id="@+id/vBtnBlaBla"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|top"
+        android:layout_marginTop="150dp"
+        android:text="BLABLA" />
 
     <com.insspring.alterablebottomsheet.AlterableBottomSheetLayout
         android:id="@+id/vBS"
