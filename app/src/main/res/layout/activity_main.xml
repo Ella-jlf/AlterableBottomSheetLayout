@@ -1,106 +1,128 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+    android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <Button
-        android:id="@+id/vBtnBlaBla"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center|top"
-        android:layout_marginTop="150dp"
-        android:text="BLABLA" />
+        android:orientation="horizontal">
 
-    <com.insspring.alterablebottomsheet.AlterableBottomSheetLayout
-        android:id="@+id/vBS"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"
-        app:foreground_height="wrap_content"
-        app:foreground_type="without_hide"
-        app:is_hide_on_bg_click="false"
-        app:margin_top="128dp"
-        app:transparency_percent="1.0">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Foreground type: "
+            android:textSize="24sp" />
 
-        <FrameLayout
-            android:id="@+id/vgBottomSheetFilters"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="128dp"
-            android:tag="I AM PARENT OF RECYCLER VIEW">
+        <Spinner
+            android:id="@+id/vSpBackground"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/vRvBottomSheetFilter"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="fill"
-                android:layout_marginBottom="60dp"
-                android:orientation="vertical"
-                android:tag="I AM RECYCLER VIEW"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
-
-        </FrameLayout>
-        <!-- <ImageView
-             android:layout_width="128dp"
-             android:layout_height="4dp"
-             android:layout_gravity="center|top"
-             android:layout_marginTop="24dp"
-             android:background="@drawable/bg_round_corners" />
-
-         <LinearLayout
-             android:layout_width="match_parent"
-             android:layout_height="wrap_content"
-             android:layout_marginTop="4dp"
-             android:background="@drawable/bg_round_corners"
-             android:orientation="vertical">
-
-             <TextView
-                 android:layout_width="wrap_content"
-                 android:layout_height="wrap_content"
-                 android:layout_gravity="center"
-                 android:text="SOMETEXT"
-                 android:textSize="32sp" />
-
-             <TextView
-                 android:layout_width="wrap_content"
-                 android:layout_height="wrap_content"
-                 android:layout_gravity="center"
-                 android:text="SOMETEXT"
-                 android:textSize="32sp" />
-
-             <TextView
-                 android:layout_width="wrap_content"
-                 android:layout_height="wrap_content"
-                 android:layout_gravity="center"
-                 android:text="SOMETEXT"
-                 android:textSize="32sp" />
-
-             <Button
-                 android:id="@+id/vBtnCLickMe"
-                 android:layout_width="wrap_content"
-                 android:layout_height="wrap_content"
-                 android:layout_gravity="center"
-                 android:text="CLickMe"
-                 android:textSize="28sp" />
-
-             <TextView
-                 android:layout_width="wrap_content"
-                 android:layout_height="wrap_content"
-                 android:layout_gravity="center"
-                 android:text="SOMETEXT"
-                 android:textSize="32sp" />
-         </LinearLayout>-->
-
-    </com.insspring.alterablebottomsheet.AlterableBottomSheetLayout>
-
-    <Button
-        android:id="@+id/vBtnShow"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center|top" />
+        android:orientation="horizontal">
 
-</FrameLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Is draggable: "
+            android:textSize="24sp" />
+
+        <Spinner
+            android:id="@+id/vSpIsDraggable"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Type: "
+            android:textSize="24sp" />
+
+        <Spinner
+            android:id="@+id/vSpType"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Intermediate height: "
+            android:textSize="24sp" />
+
+        <EditText
+            android:id="@+id/vEtIntermediateHeight"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:digits="0123456789"
+            android:maxLength="3"
+            android:text="300" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Height: "
+            android:textSize="24sp" />
+
+        <EditText
+            android:id="@+id/vEtHeight"
+            android:layout_width="60dp"
+            android:layout_height="wrap_content"
+            android:digits="-0123456789"
+            android:maxLength="4"
+            android:text="-1" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Margin top: "
+            android:textSize="24sp" />
+
+        <EditText
+            android:id="@+id/vEtMarginTop"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:digits="0123456789"
+            android:maxLength="3"
+            android:text="340" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/vBtnMainShow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|bottom"
+        android:text="Launch"
+        android:textSize="24sp" />
+
+</LinearLayout>

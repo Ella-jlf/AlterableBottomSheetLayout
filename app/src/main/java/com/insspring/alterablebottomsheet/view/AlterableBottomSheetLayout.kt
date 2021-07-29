@@ -1,17 +1,19 @@
-package com.insspring.alterablebottomsheet
+package com.insspring.alterablebottomsheet.view
 
+import android.animation.LayoutTransition
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
 import android.view.*
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import androidx.core.view.isVisible
+import androidx.core.view.marginTop
 import androidx.dynamicanimation.animation.DynamicAnimation
 import androidx.dynamicanimation.animation.SpringAnimation
 import androidx.dynamicanimation.animation.SpringForce
+import com.insspring.alterablebottomsheet.R
 import java.lang.Exception
 import kotlin.math.abs
 import kotlin.math.min
@@ -37,17 +39,9 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0,
 ) : FrameLayout(context, attrs, defStyleAttr) {
 
-    @Suppress("PrivatePropertyName")
-    private val BACKGROUND = 0x80000000.toInt()
-
-    @Suppress("PrivatePropertyName")
-    private val FOREGROUND = 0xFFFFFFFF.toInt()
-
     private var mForegroundBackground: Int
     private var mMarginTop: Int
     private var mBackgroundColor: Int
-    private var mForegroundColor: Int
-    private var mBackgroundTransparency: Float
     private var mHeadLayout: HeadLayout
     private var mForegroundHeight: Int
     private var mIsHideOnBgClick: Boolean
@@ -86,12 +80,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
 
             mBackgroundColor = getColor(
                 R.styleable.AlterableBottomSheetLayout_background_color,
-                BACKGROUND
-            )
-
-            mForegroundColor = getColor(
-                R.styleable.AlterableBottomSheetLayout_foreground_color,
-                FOREGROUND
+                0xA0000000.toInt()
             )
 
             mIsDraggable = getBoolean(
@@ -129,17 +118,13 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                 R.styleable.AlterableBottomSheetLayout_intermediate_height,
                 300)
 
-            mBackgroundTransparency = getFloat(
-                R.styleable.AlterableBottomSheetLayout_transparency_percent,
-                0f)
-
             this.recycle()
         }
 
         /* creating background View */
         mBackground = Background(context)
             .apply {
-                alpha = mBackgroundTransparency
+                alpha = 1f
                 setBackgroundColor(mBackgroundColor)
             }
 
@@ -187,6 +172,32 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
             ForegroundType.Mixed, ForegroundType.DefaultType ->
                 animateWithSpring(mForeground.height.toFloat())
         }
+    }
+
+    fun setBackground(resId: Int) {
+        mForegroundBackground = resId
+        mForeground.setBackgroundResource(mForegroundBackground)
+        invalidate()
+    }
+
+    fun setIsDrawable(value: Boolean) {
+        mIsDraggable = value
+    }
+
+    fun setType(value: ForegroundType) {
+        mType = value
+    }
+
+    fun setIntermediate(value: Int) {
+        mIntermediateHeight = value
+    }
+
+    fun setMarginTop(value: Int) {
+        (mForeground.layoutParams as LayoutParams).setMargins(0, value, 0, 0)
+    }
+
+    fun setHeight(value: Int) {
+        mForeground.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, value, Gravity.BOTTOM)
     }
 
     /*
@@ -573,7 +584,8 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
             }
         }
 
-        val curAlpha = 1 - min(mForeground.translationY / bottomEdge, 1f)
+        val curAlpha =
+            1 - min((mForeground.translationY / bottomEdge), 1f)
         mBackground.alpha = curAlpha
 
         mBackground.isVisible = curAlpha != 0f

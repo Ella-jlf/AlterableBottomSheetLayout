@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/vgBottomSheetExample"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".BottomSheetExampleActivity">
+
+    <Button
+        android:id="@+id/vBtnExampleShow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Show"
+        android:textSize="24sp" />
+
+    <com.insspring.alterablebottomsheet.view.AlterableBottomSheetLayout
+        android:id="@+id/vBsExample"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        app:foreground_height="wrap_content"
+        app:foreground_type="default_type"
+        app:margin_top="128dp">
+
+        <FrameLayout
+            android:id="@+id/vgBottomSheetFilters"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="128dp"
+            android:tag="I AM PARENT OF RECYCLER VIEW">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/vRvBottomSheetFilter"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:tag="I AM RECYCLER VIEW"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+        </FrameLayout>
+        <!-- <ImageView
+             android:layout_width="128dp"
+             android:layout_height="4dp"
+             android:layout_gravity="center|top"
+             android:layout_marginTop="24dp"
+             android:background="@drawable/bg_round_corners" />
+
+         <LinearLayout
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:layout_marginTop="4dp"
+             android:background="@drawable/bg_round_corners"
+             android:orientation="vertical">
+
+             <TextView
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:layout_gravity="center"
+                 android:text="SOMETEXT"
+                 android:textSize="32sp" />
+
+             <TextView
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:layout_gravity="center"
+                 android:text="SOMETEXT"
+                 android:textSize="32sp" />
+
+             <TextView
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:layout_gravity="center"
+                 android:text="SOMETEXT"
+                 android:textSize="32sp" />
+
+             <Button
+                 android:id="@+id/vBtnCLickMe"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:layout_gravity="center"
+                 android:text="CLickMe"
+                 android:textSize="28sp" />
+
+             <TextView
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:layout_gravity="center"
+                 android:text="SOMETEXT"
+                 android:textSize="32sp" />
+         </LinearLayout>-->
+
+    </com.insspring.alterablebottomsheet.view.AlterableBottomSheetLayout>
+</FrameLayout>
