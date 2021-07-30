@@ -3,28 +3,20 @@
     <declare-styleable name="AlterableBottomSheetLayout">
         <!-- Foreground background, required -->
         <attr name="foreground" format="reference" />
-        <!-- InnerLayout -->
-        <attr name="head_layout" format="enum">
-            <enum name="frame_layout" value="0" />
-            <enum name="linear_layout" value="1" />
-            <enum name="relative_layout" value="2" />
-        </attr>
-        <attr name="transparency_percent" format="float" />
         <attr name="margin_top" format="dimension" />
-        <attr name="isDraggable" format="boolean" />
-        <attr name="hide_on_background_click" format="boolean" />
+        <attr name="is_draggable" format="boolean" />
+        <attr name="is_hide_on_bg_click" format="boolean" />
         <attr name="background_color" format="color" />
         <attr name="foreground_height" format="dimension">
             <enum name="match_parent" value="-1" />
             <enum name="wrap_content" value="-2" />
         </attr>
         <attr name="foreground_type" format="enum">
-            <enum name="without_intermediate" value="0" />
+            <enum name="default_type" value="0" />
             <enum name="without_hide" value="1" />
             <enum name="mixed" value="2" />
         </attr>
         <attr name="intermediate_height" format="dimension" />
-        <attr name="foreground_color" format="color" />
-        <attr name="isHidable" format="boolean" />
+        <attr name="top_corners" format="dimension" />
     </declare-styleable>
 </resources>

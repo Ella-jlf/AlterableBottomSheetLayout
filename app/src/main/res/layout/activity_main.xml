@@ -3,97 +3,157 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
-    tools:context=".MainActivity">
+    android:layout_height="match_parent">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|top"
+        android:layout_margin="24dp"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:orientation="vertical"
+        tools:context=".MainActivity">
 
-    <com.insspring.alterablebottomsheet.AlterableBottomSheetLayout
-        android:id="@+id/vBS"
+        <com.google.android.flexbox.FlexboxLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:justifyContent="space_between">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Foreground type: "
+                android:textSize="24sp" />
+
+            <Spinner
+                android:id="@+id/vSpBackground"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </com.google.android.flexbox.FlexboxLayout>
+
+        <com.google.android.flexbox.FlexboxLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:justifyContent="space_between">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Is draggable: "
+                android:textSize="24sp" />
+
+            <Spinner
+                android:id="@+id/vSpIsDraggable"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </com.google.android.flexbox.FlexboxLayout>
+
+        <com.google.android.flexbox.FlexboxLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:justifyContent="space_between">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Type: "
+                android:textSize="24sp" />
+
+            <Spinner
+                android:id="@+id/vSpType"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </com.google.android.flexbox.FlexboxLayout>
+
+        <com.google.android.flexbox.FlexboxLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:justifyContent="space_between">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Intermediate height: "
+                android:textSize="24sp" />
+
+            <EditText
+                android:id="@+id/vEtIntermediateHeight"
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"
+                android:digits="0123456789"
+                android:maxLength="3"
+                android:text="300" />
+        </com.google.android.flexbox.FlexboxLayout>
+
+        <com.google.android.flexbox.FlexboxLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:justifyContent="space_between">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Height: "
+                android:textSize="24sp" />
+
+            <EditText
+                android:id="@+id/vEtHeight"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:digits="-0123456789"
+                android:maxLength="4"
+                android:text="-1" />
+        </com.google.android.flexbox.FlexboxLayout>
+
+        <com.google.android.flexbox.FlexboxLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:justifyContent="space_between">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Margin top: "
+                android:textSize="24sp" />
+
+            <EditText
+                android:id="@+id/vEtMarginTop"
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"
+                android:digits="0123456789"
+                android:maxLength="3"
+                android:text="340" />
+        </com.google.android.flexbox.FlexboxLayout>
+
+        <Button
+            android:id="@+id/vBtnMainApply"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Apply Changes"
+            android:textSize="24sp" />
+
+        <Button
+            android:id="@+id/vBtnMainShow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Show"
+            android:textSize="24sp" />
+
+    </LinearLayout>
+
+    <com.insspring.alterablebottomsheet.view.AlterableBottomSheetLayout
+        android:id="@+id/vgBsMain"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_gravity="center"
-        app:foreground_height="wrap_content"
-        app:foreground_type="mixed"
-        app:intermediate_height="200dp"
         app:margin_top="128dp"
-        app:transparency_percent="0.2">
+        app:top_corners="64dp">
 
-        <FrameLayout
-            android:id="@+id/vgBottomSheetFilters"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="128dp"
-            android:tag="I AM PARENT OF RECYCLER VIEW">
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/vRvBottomSheetFilter"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="fill"
-                android:layout_marginBottom="60dp"
-                android:orientation="vertical"
-                android:tag="I AM RECYCLER VIEW"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
-
-        </FrameLayout>
-        <!-- <ImageView
-             android:layout_width="128dp"
-             android:layout_height="4dp"
-             android:layout_gravity="center|top"
-             android:layout_marginTop="24dp"
-             android:background="@drawable/bg_round_corners" />
-
-         <LinearLayout
-             android:layout_width="match_parent"
-             android:layout_height="wrap_content"
-             android:layout_marginTop="4dp"
-             android:background="@drawable/bg_round_corners"
-             android:orientation="vertical">
-
-             <TextView
-                 android:layout_width="wrap_content"
-                 android:layout_height="wrap_content"
-                 android:layout_gravity="center"
-                 android:text="SOMETEXT"
-                 android:textSize="32sp" />
-
-             <TextView
-                 android:layout_width="wrap_content"
-                 android:layout_height="wrap_content"
-                 android:layout_gravity="center"
-                 android:text="SOMETEXT"
-                 android:textSize="32sp" />
-
-             <TextView
-                 android:layout_width="wrap_content"
-                 android:layout_height="wrap_content"
-                 android:layout_gravity="center"
-                 android:text="SOMETEXT"
-                 android:textSize="32sp" />
-
-             <Button
-                 android:id="@+id/vBtnCLickMe"
-                 android:layout_width="wrap_content"
-                 android:layout_height="wrap_content"
-                 android:layout_gravity="center"
-                 android:text="CLickMe"
-                 android:textSize="28sp" />
-
-             <TextView
-                 android:layout_width="wrap_content"
-                 android:layout_height="wrap_content"
-                 android:layout_gravity="center"
-                 android:text="SOMETEXT"
-                 android:textSize="32sp" />
-         </LinearLayout>-->
-
-    </com.insspring.alterablebottomsheet.AlterableBottomSheetLayout>
-
-    <Button
-        android:id="@+id/vBtnShow"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center|top" />
-
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/vRvMain"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </com.insspring.alterablebottomsheet.view.AlterableBottomSheetLayout>
 </FrameLayout>
