@@ -177,27 +177,33 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
     fun setBackground(resId: Int) {
         mForegroundBackground = resId
         mForeground.setBackgroundResource(mForegroundBackground)
-        invalidate()
+        requestLayout()
     }
 
     fun setIsDrawable(value: Boolean) {
         mIsDraggable = value
+        requestLayout()
     }
 
     fun setType(value: ForegroundType) {
         mType = value
+        requestLayout()
     }
 
     fun setIntermediate(value: Int) {
         mIntermediateHeight = value
+        requestLayout()
     }
 
     fun setMarginTop(value: Int) {
-        (mForeground.layoutParams as LayoutParams).setMargins(0, value, 0, 0)
+        mMarginTop = value
+        (mForeground.layoutParams as LayoutParams).setMargins(0, mMarginTop, 0, 0)
+        requestLayout()
     }
 
     fun setHeight(value: Int) {
         mForeground.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, value, Gravity.BOTTOM)
+        requestLayout()
     }
 
     /*
