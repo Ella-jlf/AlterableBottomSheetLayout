@@ -17,7 +17,6 @@
             <enum name="mixed" value="2" />
         </attr>
         <attr name="intermediate_height" format="dimension" />
-        <attr name="foreground_color" format="color" />
         <attr name="top_corners" format="dimension" />
     </declare-styleable>
 </resources>
