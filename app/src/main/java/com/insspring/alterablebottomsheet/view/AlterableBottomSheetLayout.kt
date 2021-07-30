@@ -1,20 +1,19 @@
 package com.insspring.alterablebottomsheet.view
 
-import android.animation.LayoutTransition
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Canvas
+import android.graphics.Path
+import android.graphics.RectF
 import android.util.AttributeSet
+import android.util.Log
 import android.view.*
 import android.widget.FrameLayout
-import android.widget.LinearLayout
-import android.widget.RelativeLayout
 import androidx.core.view.isVisible
-import androidx.core.view.marginTop
 import androidx.dynamicanimation.animation.DynamicAnimation
 import androidx.dynamicanimation.animation.SpringAnimation
 import androidx.dynamicanimation.animation.SpringForce
 import com.insspring.alterablebottomsheet.R
-import java.lang.Exception
 import kotlin.math.abs
 import kotlin.math.min
 
@@ -22,12 +21,6 @@ enum class ForegroundType {
     DefaultType,
     WithoutHide,
     Mixed,
-}
-
-enum class HeadLayout {
-    FRAME_LAYOUT,
-    LINEAR_LAYOUT,
-    RELATIVE_LAYOUT,
 }
 
 enum class Direction(val int: Int) {
@@ -42,12 +35,12 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
     private var mForegroundBackground: Int
     private var mMarginTop: Int
     private var mBackgroundColor: Int
-    private var mHeadLayout: HeadLayout
     private var mForegroundHeight: Int
     private var mIsHideOnBgClick: Boolean
     private var mIsDraggable: Boolean
     private var mType: ForegroundType
     private var mIntermediateHeight: Int
+    private var mTopCorners: Int
 
     private var mBackground: Background
     private var mForeground: ViewGroup
@@ -91,19 +84,14 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                 R.styleable.AlterableBottomSheetLayout_is_hide_on_bg_click,
                 true)
 
-            val headLayoutValue = getInt(
-                R.styleable.AlterableBottomSheetLayout_head_layout,
-                0)
-            mHeadLayout = when (headLayoutValue) {
-                0 -> HeadLayout.FRAME_LAYOUT
-                1 -> HeadLayout.LINEAR_LAYOUT
-                2 -> HeadLayout.RELATIVE_LAYOUT
-                else -> throw Exception("no such value in HeadLayout enum")
-            }
-
             mForegroundHeight = getLayoutDimension(
                 R.styleable.AlterableBottomSheetLayout_foreground_height,
                 -1)
+
+            mTopCorners = getDimensionPixelSize(
+                R.styleable.AlterableBottomSheetLayout_top_corners,
+                64
+            )
 
             val mTypeValue = getInt(
                 R.styleable.AlterableBottomSheetLayout_foreground_type,
@@ -129,25 +117,12 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
             }
 
         /* creating foreground Layout */
-        when (mHeadLayout) {
-            HeadLayout.LINEAR_LAYOUT -> {
-                mForeground = LinearLayout(context).apply {
-                    orientation = LinearLayout.VERTICAL
-                    gravity = Gravity.CENTER
-                }
-            }
-
-            HeadLayout.RELATIVE_LAYOUT -> {
-                mForeground = RelativeLayout(context)
-            }
-
-            HeadLayout.FRAME_LAYOUT -> {
-                mForeground = FrameLayout(context)
-            }
-        }
-        mForeground.apply {
+        mForeground = Foreground(context, mTopCorners).apply {
             setBackgroundResource(mForegroundBackground)
             layoutParams = createLayoutParams()
+            outlineProvider = ViewOutlineProvider.BACKGROUND
+            clipToOutline = true
+            clipChildren = true
         }
 
         addView(mBackground, 0)
@@ -177,33 +152,27 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
     fun setBackground(resId: Int) {
         mForegroundBackground = resId
         mForeground.setBackgroundResource(mForegroundBackground)
-        requestLayout()
     }
 
     fun setIsDrawable(value: Boolean) {
         mIsDraggable = value
-        requestLayout()
     }
 
     fun setType(value: ForegroundType) {
         mType = value
-        requestLayout()
     }
 
     fun setIntermediate(value: Int) {
         mIntermediateHeight = value
-        requestLayout()
     }
 
     fun setMarginTop(value: Int) {
         mMarginTop = value
         (mForeground.layoutParams as LayoutParams).setMargins(0, mMarginTop, 0, 0)
-        requestLayout()
     }
 
     fun setHeight(value: Int) {
         mForeground.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, value, Gravity.BOTTOM)
-        requestLayout()
     }
 
     /*
@@ -299,6 +268,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
             return true
         return false
     }
+
 
     /*
      * final animations to place view in exact spot
@@ -398,7 +368,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                 spring = SpringForce(finalPos)
                     .apply {
                         dampingRatio = SpringForce.DAMPING_RATIO_NO_BOUNCY
-                        stiffness = SpringForce.STIFFNESS_MEDIUM
+                        stiffness = 400f
                     }
 
                 /* if was fully scrolled to bottom of screen - disappear */
@@ -598,7 +568,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
     }
 }
 
-class Background @kotlin.jvm.JvmOverloads constructor(
+class Background @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0,
 ) : View(context, attrs, defStyleAttr) {
     var border = 0f
@@ -611,5 +581,28 @@ class Background @kotlin.jvm.JvmOverloads constructor(
         }
 
         return false
+    }
+}
+
+class Foreground @JvmOverloads constructor(
+    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0,
+) : FrameLayout(context, attrs, defStyleAttr) {
+    private var mTopCorners: Int = 0
+
+    constructor(context: Context, topCorners: Int) : this(context) {
+        mTopCorners = topCorners
+    }
+
+    @SuppressLint("DrawAllocation")
+    override fun onDraw(canvas: Canvas?) {
+        if (canvas != null) {
+            val clipPath = Path()
+            clipPath.addRoundRect(RectF(canvas.clipBounds),
+                mTopCorners.toFloat(),
+                mTopCorners.toFloat(),
+                Path.Direction.CW)
+            canvas.clipPath(clipPath)
+        }
+        super.onDraw(canvas)
     }
 }

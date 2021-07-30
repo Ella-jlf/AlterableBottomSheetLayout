@@ -6,28 +6,36 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewOutlineProvider
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.insspring.alterablebottomsheet.examplelist.QuickAdapter
+import com.insspring.alterablebottomsheet.extensions.dpToPx
+import com.insspring.alterablebottomsheet.view.ForegroundType
 import kotlinx.android.synthetic.main.activity_main.view.*
 import kotlinx.android.synthetic.main.item_spinner_text.view.*
 
 
 class MainActivity : AppCompatActivity() {
+    val bgRes = HashMap<String, Int>().also {
+        it["bg_0"] = R.drawable.bg_round_corners
+        it["bg_1"] = R.drawable.bg_round_corners_1
+        it["bg_2"] = R.drawable.bg_round_corners_2
+    }
+    val types = HashMap<String, ForegroundType>().also {
+        it["default_type"] = ForegroundType.DefaultType
+        it["without_hide"] = ForegroundType.WithoutHide
+        it["mixed"] = ForegroundType.Mixed
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val root = layoutInflater.inflate(R.layout.activity_main, null)
         setContentView(root)
 
         root.vBtnMainShow.setOnClickListener {
-            val intent = Intent(this, BottomSheetExampleActivity::class.java).apply {
-                putExtra("backgroundRes", root.vSpBackground.selectedItem as String)
-                putExtra("isDraggable", root.vSpIsDraggable.selectedItem as String)
-                putExtra("type", root.vSpType.selectedItem as String)
-                putExtra("intermediateHeight", root.vEtIntermediateHeight.text.toString().toInt())
-                putExtra("height", root.vEtHeight.text.toString().toInt())
-                putExtra("marginTop", root.vEtMarginTop.text.toString().toInt())
-            }
-            startActivity(intent)
+            root.vgBsMain.show()
         }
 
         root.vSpBackground.apply {
@@ -58,6 +66,66 @@ class MainActivity : AppCompatActivity() {
             adapter =
                 CustomSpinnerAdapter(context, R.layout.item_spinner_text, types as List<String>)
         }
+
+        root.vRvMain.apply {
+            adapter = QuickAdapter()
+            layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+        }
+
+        root.vBtnMainShow.setOnClickListener {
+            root.vgBsMain.show()
+        }
+
+        root.vBtnMainApply.setOnClickListener(applyProperties)
+    }
+
+    private val applyProperties = object : View.OnClickListener {
+        override fun onClick(v: View?) {
+            if (v == null)
+                return
+
+            val root = v.rootView
+
+            val bg = root.vSpBackground.selectedItem
+            root.vgBsMain.apply {
+                bgRes[bg]?.let {
+                    setBackground(it)
+                }
+            }
+
+            val type = root.vSpType.selectedItem
+            root.vgBsMain.apply {
+                types[type]?.let {
+                    setType(it)
+                }
+            }
+
+            val intermediate = root.vEtIntermediateHeight.text.toString().toInt().dpToPx()
+            root.vgBsMain.apply {
+                setIntermediate(intermediate)
+            }
+
+            var height = root.vEtHeight.text.toString().toInt()
+            if (height != -1 && height != -2)
+                height = height.dpToPx()
+            root.vgBsMain.apply {
+                setHeight(height)
+            }
+
+            val marginTop = root.vEtMarginTop.text.toString().toInt().dpToPx()
+            root.vgBsMain.apply {
+                setMarginTop(marginTop)
+            }
+
+            val isDraggableStr = root.vSpIsDraggable.selectedItem
+            var isDraggable = true
+            if (isDraggableStr == "false")
+                isDraggable = false
+            root.vgBsMain.apply {
+                setIsDrawable(isDraggable)
+            }
+        }
+
     }
 }
 

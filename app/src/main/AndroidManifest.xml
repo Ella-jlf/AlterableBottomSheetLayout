@@ -10,10 +10,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.BottomSheet">
-        <activity
-            android:name=".BottomSheetExampleActivity"
-            android:label="@string/title_activity_bottom_sheet_example"
-            android:theme="@style/Theme.BottomSheet.NoActionBar"></activity>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

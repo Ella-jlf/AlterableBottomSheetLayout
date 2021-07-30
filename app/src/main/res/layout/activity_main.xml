@@ -1,128 +1,159 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".MainActivity">
+    android:layout_height="match_parent">
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_gravity="center|top"
+        android:layout_margin="24dp"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:orientation="vertical"
+        tools:context=".MainActivity">
 
-        <TextView
+        <com.google.android.flexbox.FlexboxLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:justifyContent="space_between">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Foreground type: "
+                android:textSize="24sp" />
+
+            <Spinner
+                android:id="@+id/vSpBackground"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </com.google.android.flexbox.FlexboxLayout>
+
+        <com.google.android.flexbox.FlexboxLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:justifyContent="space_between">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Is draggable: "
+                android:textSize="24sp" />
+
+            <Spinner
+                android:id="@+id/vSpIsDraggable"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </com.google.android.flexbox.FlexboxLayout>
+
+        <com.google.android.flexbox.FlexboxLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:justifyContent="space_between">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Type: "
+                android:textSize="24sp" />
+
+            <Spinner
+                android:id="@+id/vSpType"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </com.google.android.flexbox.FlexboxLayout>
+
+        <com.google.android.flexbox.FlexboxLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:justifyContent="space_between">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Intermediate height: "
+                android:textSize="24sp" />
+
+            <EditText
+                android:id="@+id/vEtIntermediateHeight"
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"
+                android:digits="0123456789"
+                android:maxLength="3"
+                android:text="300" />
+        </com.google.android.flexbox.FlexboxLayout>
+
+        <com.google.android.flexbox.FlexboxLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:justifyContent="space_between">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Height: "
+                android:textSize="24sp" />
+
+            <EditText
+                android:id="@+id/vEtHeight"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:digits="-0123456789"
+                android:maxLength="4"
+                android:text="-1" />
+        </com.google.android.flexbox.FlexboxLayout>
+
+        <com.google.android.flexbox.FlexboxLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:justifyContent="space_between">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Margin top: "
+                android:textSize="24sp" />
+
+            <EditText
+                android:id="@+id/vEtMarginTop"
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"
+                android:digits="0123456789"
+                android:maxLength="3"
+                android:text="340" />
+        </com.google.android.flexbox.FlexboxLayout>
+
+        <Button
+            android:id="@+id/vBtnMainApply"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Foreground type: "
+            android:layout_gravity="center"
+            android:text="Apply Changes"
             android:textSize="24sp" />
 
-        <Spinner
-            android:id="@+id/vSpBackground"
+        <Button
+            android:id="@+id/vBtnMainShow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Show"
+            android:textSize="24sp" />
+
+    </LinearLayout>
+
+    <com.insspring.alterablebottomsheet.view.AlterableBottomSheetLayout
+        android:id="@+id/vgBsMain"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:margin_top="128dp"
+        app:top_corners="64dp">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/vRvMain"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Is draggable: "
-            android:textSize="24sp" />
-
-        <Spinner
-            android:id="@+id/vSpIsDraggable"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Type: "
-            android:textSize="24sp" />
-
-        <Spinner
-            android:id="@+id/vSpType"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Intermediate height: "
-            android:textSize="24sp" />
-
-        <EditText
-            android:id="@+id/vEtIntermediateHeight"
-            android:layout_width="40dp"
-            android:layout_height="wrap_content"
-            android:digits="0123456789"
-            android:maxLength="3"
-            android:text="300" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Height: "
-            android:textSize="24sp" />
-
-        <EditText
-            android:id="@+id/vEtHeight"
-            android:layout_width="60dp"
-            android:layout_height="wrap_content"
-            android:digits="-0123456789"
-            android:maxLength="4"
-            android:text="-1" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Margin top: "
-            android:textSize="24sp" />
-
-        <EditText
-            android:id="@+id/vEtMarginTop"
-            android:layout_width="40dp"
-            android:layout_height="wrap_content"
-            android:digits="0123456789"
-            android:maxLength="3"
-            android:text="340" />
-    </LinearLayout>
-
-    <Button
-        android:id="@+id/vBtnMainShow"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center|bottom"
-        android:text="Launch"
-        android:textSize="24sp" />
-
-</LinearLayout>
+    </com.insspring.alterablebottomsheet.view.AlterableBottomSheetLayout>
+</FrameLayout>
