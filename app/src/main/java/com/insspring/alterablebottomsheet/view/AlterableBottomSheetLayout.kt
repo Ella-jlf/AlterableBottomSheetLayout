@@ -122,7 +122,6 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
             layoutParams = createLayoutParams()
             outlineProvider = ViewOutlineProvider.BACKGROUND
             clipToOutline = true
-            clipChildren = true
         }
 
         addView(mBackground, 0)
@@ -587,22 +586,30 @@ class Background @JvmOverloads constructor(
 class Foreground @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0,
 ) : FrameLayout(context, attrs, defStyleAttr) {
-    private var mTopCorners: Int = 0
+    private var mTopCorners: Float = 0f
+    private var mCorners: FloatArray = FloatArray(8)
+    private val clipPath = Path()
+
 
     constructor(context: Context, topCorners: Int) : this(context) {
-        mTopCorners = topCorners
+        mTopCorners = topCorners.toFloat()
+        mCorners[0] = mTopCorners
+        mCorners[1] = mTopCorners
+        mCorners[2] = mTopCorners
+        mCorners[3] = mTopCorners
+        mCorners[4] = 0f
+        mCorners[5] = 0f
+        mCorners[6] = 0f
+        mCorners[7] = 0f
     }
 
     @SuppressLint("DrawAllocation")
     override fun onDraw(canvas: Canvas?) {
         if (canvas != null) {
-            val clipPath = Path()
-            clipPath.addRoundRect(RectF(canvas.clipBounds),
-                mTopCorners.toFloat(),
-                mTopCorners.toFloat(),
-                Path.Direction.CW)
+            if (clipPath.isEmpty)
+                clipPath.addRoundRect(RectF(canvas.clipBounds), mCorners, Path.Direction.CW)
             canvas.clipPath(clipPath)
         }
-        super.onDraw(canvas)
+        //super.onDraw(canvas)
     }
 }
