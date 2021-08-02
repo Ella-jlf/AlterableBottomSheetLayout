@@ -9,6 +9,7 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.*
 import android.widget.FrameLayout
+import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.dynamicanimation.animation.DynamicAnimation
 import androidx.dynamicanimation.animation.SpringAnimation
@@ -326,7 +327,6 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                 }
 
                 val oneThirdTop = (mForeground.height - mIntermediateHeight) / 2 + border
-
                 if (mForeground.y <= oneThirdTop) {
                     animateWithSpring(0f)
                     return
@@ -563,7 +563,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
             1 - min((mForeground.translationY / bottomEdge), 1f)
         mBackground.alpha = curAlpha
 
-        mBackground.isVisible = curAlpha != 0f
+        mBackground.isInvisible = 0f == curAlpha
     }
 }
 
@@ -612,4 +612,5 @@ class Foreground @JvmOverloads constructor(
         }
         //super.onDraw(canvas)
     }
+
 }

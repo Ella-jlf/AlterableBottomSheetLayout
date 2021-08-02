@@ -39,7 +39,7 @@ class QuickAdapter : RecyclerView.Adapter<QuickViewHolder>() {
     }
 
     override fun getItemCount(): Int {
-        return 12
+        return 1
     }
 
 }
