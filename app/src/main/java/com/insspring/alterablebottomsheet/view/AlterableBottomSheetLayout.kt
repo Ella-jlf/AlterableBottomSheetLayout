@@ -6,7 +6,6 @@ import android.graphics.Canvas
 import android.graphics.Path
 import android.graphics.RectF
 import android.util.AttributeSet
-import android.util.Log
 import android.view.*
 import android.widget.FrameLayout
 import androidx.core.view.isInvisible
@@ -15,6 +14,7 @@ import androidx.dynamicanimation.animation.DynamicAnimation
 import androidx.dynamicanimation.animation.SpringAnimation
 import androidx.dynamicanimation.animation.SpringForce
 import com.insspring.alterablebottomsheet.R
+import com.insspring.alterablebottomsheet.extensions.dpToPx
 import kotlin.math.abs
 import kotlin.math.min
 
@@ -52,6 +52,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
     private var border: Int = 0
     private var travellingView: View? = null
     private var curTranslation: Float = 0f
+    private var hideOnFirstAppear = true
 
     init {
         this.translationZ = 10f
@@ -91,7 +92,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
 
             mTopCorners = getDimensionPixelSize(
                 R.styleable.AlterableBottomSheetLayout_top_corners,
-                64
+                64.dpToPx()
             )
 
             val mTypeValue = getInt(
@@ -105,7 +106,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
             }
             mIntermediateHeight = getDimensionPixelSize(
                 R.styleable.AlterableBottomSheetLayout_intermediate_height,
-                300)
+                300.dpToPx())
 
             this.recycle()
         }
@@ -186,6 +187,12 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
 
         border = mForeground.top
         mBackground.border = border.toFloat()
+
+        if (hideOnFirstAppear) {
+            mForeground.translationY = mForeground.height.toFloat()
+            this.isVisible = false
+            hideOnFirstAppear = false
+        }
     }
 
     override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
@@ -358,7 +365,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
         }
     }
 
-    private fun animateWithSpring(finalPos: Float) {
+    private fun animateWithSpring(finalPos: Float, _stiffness: Float = 400f) {
         val springAnimation = SpringAnimation(mForeground, DynamicAnimation.TRANSLATION_Y)
             .apply {
 
@@ -367,7 +374,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                 spring = SpringForce(finalPos)
                     .apply {
                         dampingRatio = SpringForce.DAMPING_RATIO_NO_BOUNCY
-                        stiffness = 400f
+                        stiffness = _stiffness
                     }
 
                 /* if was fully scrolled to bottom of screen - disappear */
