@@ -6,14 +6,15 @@ import android.graphics.Canvas
 import android.graphics.Path
 import android.graphics.RectF
 import android.util.AttributeSet
-import android.util.Log
 import android.view.*
 import android.widget.FrameLayout
+import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.dynamicanimation.animation.DynamicAnimation
 import androidx.dynamicanimation.animation.SpringAnimation
 import androidx.dynamicanimation.animation.SpringForce
 import com.insspring.alterablebottomsheet.R
+import com.insspring.alterablebottomsheet.extensions.dpToPx
 import kotlin.math.abs
 import kotlin.math.min
 
@@ -51,6 +52,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
     private var border: Int = 0
     private var travellingView: View? = null
     private var curTranslation: Float = 0f
+    private var hideOnFirstAppear = true
 
     init {
         this.translationZ = 10f
@@ -90,7 +92,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
 
             mTopCorners = getDimensionPixelSize(
                 R.styleable.AlterableBottomSheetLayout_top_corners,
-                64
+                64.dpToPx()
             )
 
             val mTypeValue = getInt(
@@ -104,7 +106,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
             }
             mIntermediateHeight = getDimensionPixelSize(
                 R.styleable.AlterableBottomSheetLayout_intermediate_height,
-                300)
+                300.dpToPx())
 
             this.recycle()
         }
@@ -122,7 +124,6 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
             layoutParams = createLayoutParams()
             outlineProvider = ViewOutlineProvider.BACKGROUND
             clipToOutline = true
-            clipChildren = true
         }
 
         addView(mBackground, 0)
@@ -186,6 +187,12 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
 
         border = mForeground.top
         mBackground.border = border.toFloat()
+
+        if (hideOnFirstAppear) {
+            mForeground.translationY = mForeground.height.toFloat()
+            this.isVisible = false
+            hideOnFirstAppear = false
+        }
     }
 
     override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
@@ -327,7 +334,6 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                 }
 
                 val oneThirdTop = (mForeground.height - mIntermediateHeight) / 2 + border
-
                 if (mForeground.y <= oneThirdTop) {
                     animateWithSpring(0f)
                     return
@@ -359,7 +365,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
         }
     }
 
-    private fun animateWithSpring(finalPos: Float) {
+    private fun animateWithSpring(finalPos: Float, _stiffness: Float = 400f) {
         val springAnimation = SpringAnimation(mForeground, DynamicAnimation.TRANSLATION_Y)
             .apply {
 
@@ -368,7 +374,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
                 spring = SpringForce(finalPos)
                     .apply {
                         dampingRatio = SpringForce.DAMPING_RATIO_NO_BOUNCY
-                        stiffness = 400f
+                        stiffness = _stiffness
                     }
 
                 /* if was fully scrolled to bottom of screen - disappear */
@@ -564,7 +570,7 @@ class AlterableBottomSheetLayout @JvmOverloads constructor(
             1 - min((mForeground.translationY / bottomEdge), 1f)
         mBackground.alpha = curAlpha
 
-        mBackground.isVisible = curAlpha != 0f
+        mBackground.isInvisible = 0f == curAlpha
     }
 }
 
@@ -587,22 +593,31 @@ class Background @JvmOverloads constructor(
 class Foreground @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0,
 ) : FrameLayout(context, attrs, defStyleAttr) {
-    private var mTopCorners: Int = 0
+    private var mTopCorners: Float = 0f
+    private var mCorners: FloatArray = FloatArray(8)
+    private val clipPath = Path()
+
 
     constructor(context: Context, topCorners: Int) : this(context) {
-        mTopCorners = topCorners
+        mTopCorners = topCorners.toFloat()
+        mCorners[0] = mTopCorners
+        mCorners[1] = mTopCorners
+        mCorners[2] = mTopCorners
+        mCorners[3] = mTopCorners
+        mCorners[4] = 0f
+        mCorners[5] = 0f
+        mCorners[6] = 0f
+        mCorners[7] = 0f
     }
 
     @SuppressLint("DrawAllocation")
     override fun onDraw(canvas: Canvas?) {
         if (canvas != null) {
-            val clipPath = Path()
-            clipPath.addRoundRect(RectF(canvas.clipBounds),
-                mTopCorners.toFloat(),
-                mTopCorners.toFloat(),
-                Path.Direction.CW)
+            if (clipPath.isEmpty)
+                clipPath.addRoundRect(RectF(canvas.clipBounds), mCorners, Path.Direction.CW)
             canvas.clipPath(clipPath)
         }
-        super.onDraw(canvas)
+        //super.onDraw(canvas)
     }
+
 }

@@ -147,13 +147,15 @@
     <com.insspring.alterablebottomsheet.view.AlterableBottomSheetLayout
         android:id="@+id/vgBsMain"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        app:foreground_type="mixed"
+        app:intermediate_height="256dp"
         app:margin_top="128dp"
         app:top_corners="64dp">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/vRvMain"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content" />
     </com.insspring.alterablebottomsheet.view.AlterableBottomSheetLayout>
 </FrameLayout>
